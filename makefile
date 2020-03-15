@@ -1,15 +1,23 @@
-all: dll_structure.c dll_structure.h
-	gcc -o dll_structure.out dll_structure.c dll_structure.h
-	./dll_structure.out
+#Note, -g flag enabled by default
 
-#Intermediate step, compiles with -g flag
-info: dll_structure.c dll_structure.h
-	gcc -o dll_structure.out dll_structure.c dll_structure.h -g
+all: main.o dll_structure.o
+	gcc -o main.out main.o dll_structure.o -g
+	rm *.o
+	./main.out
 
-debug: info
-	gdb ./dll_structure.out
+main: main.c
+	gcc -c main.c
 
-valgrind: info 
-	valgrind --leak-check=full ./dll_structure.out 
-	
+dll_structure: dll_structure.c dll_structure.h
+	gcc -c dll_structure.c dll_structure.h
+
+
+
+
+#Debug and memory checking commands
+debug: all
+	gdb ./main.out
+
+valgrind: all 
+	valgrind --leak-check=full --track-origins=yes ./main.out
 	

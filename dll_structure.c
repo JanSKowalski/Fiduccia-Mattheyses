@@ -9,43 +9,6 @@ Jan Kowalski 3/2020
 */
 
 
-int main(){
-	printf("######################################\n");
-	printf("Attempting intitialization of dll\n");
-
-
-	struct dll* list = malloc(sizeof(*list));
-
-	initialize(list);
-
-	printf("Initialization successful\n");
-
-
-	print_dll(list);
-
-
-
-	insert_node_integer(list, 0, 5);
-	insert_node_integer(list, 1, 7);
-	insert_node_integer(list, 2, 9);
-
-	print_dll(list);
-
-	remove_node(list, 1);
-
-	print_dll(list);
-
-
-
-	garbage_collection(list);
-
-	printf("######################################\n");
-
-	return 0;
-}
-
-
-
 /*
 Initialize a doubly linked list
 	nodes have arbitrary data type
@@ -179,18 +142,23 @@ void remove_node(struct dll* list, int position){
 //Takes in an initialized dll struct
 //Frees memory
 void garbage_collection(struct dll* list){
-	garbage_collection_recursive(list->head, list->tail);
+
+	struct node* head = list->head;
+
+	//Neither head nor tail have data_structures associated
+	//It's simpler to treat them separately
+	garbage_collection_recursive(head->next, list->tail);
+
+	free(head);
 	free(list);
 }
 
 
-//Input head and tail nodes of the ddl
+//Input first(not head) and tail nodes of the ddl
 void garbage_collection_recursive(struct node* temp, struct node* tail){
-	//printf("Temp, tail refrences: %d, %d\n", temp, tail);
-	//printf("Deleting Node data: %d\n", temp->data);
 	if (temp != tail){
 		garbage_collection_recursive(temp->next, tail);
+		free(temp->data_structure);
 	}
-	free(temp->data_structure);
 	free(temp);
 }
