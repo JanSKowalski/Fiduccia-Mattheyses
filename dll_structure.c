@@ -10,6 +10,13 @@ Jan Kowalski 3/2020
 
 
 /*
+6/15/2020 Review
+The O(n) implementation of remove() needs to be supplemented with a O(1) remove(),
+	taking the cell pointer directly.
+*/
+
+
+/*
 Initialize a doubly linked list
 	nodes have arbitrary data type
 	every list has a size (excluding sentinels)
@@ -103,16 +110,36 @@ void insert_node(struct dll* list, int position, void* data_structure){
 	list->size = list->size + 1;
 }
 
-
-void insert_node_integer(struct dll* list, int position, int data){
-	struct integer_data* data_structure = malloc(sizeof(data_structure));
-	data_structure->data = data;
-	insert_node(list, position, data_structure);
+struct integer_data* initialize_integer_data(int data){
+	struct integer_data* new_integer = malloc(sizeof(new_integer));
+	new_integer->data = data;
+	return new_integer;
 }
 
 
+/*
+Potential dll data types: integer, cell, net
+*/
+void insert_node_integer(struct dll* list, int position, int data){
+	struct integer_data* new_integer = malloc(sizeof(new_integer));
+	new_integer->data = data;
+	insert_node(list, position, new_integer);
+}
+
+
+
+void insert_node_cell(struct dll* list, int position, int gain, struct dll* nets, int partition, int size){
+	struct cell* new_cell = malloc(sizeof(new_cell));
+	new_cell->gain = gain;
+	new_cell->nets = nets;
+	new_cell->partition = partition;
+	new_cell->size = size;
+	insert_node(list, position, new_cell);
+}
+
 //Position is zero indexed, must be a value less than string size
-void remove_node(struct dll* list, int position){
+//NOTE: This is an O(n) implementation
+void remove_node_using_list(struct dll* list, int position){
 
 	if (position >= list->size ){
 		fprintf(stderr, "Error: Attempting to remove a nonexistant node.\n");
@@ -138,6 +165,11 @@ void remove_node(struct dll* list, int position){
 	list->size = list->size - 1;
 }
 
+//O(1) remove function requires the pointer to the node
+struct node* remove_node(struct node* node_being_removed){
+	connect_two_nodes(node_being_removed->previous, node_being_removed->next);
+	return node_being_removed;
+}
 
 //Takes in an initialized dll struct
 //Frees memory
