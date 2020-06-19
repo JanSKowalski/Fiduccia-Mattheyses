@@ -18,7 +18,7 @@ void insert_node(struct dll*, int, void*);
 void remove_node_using_list(struct dll*, int);
 struct node* remove_node(struct node*);
 
-void garbage_collection(struct dll*);
-void garbage_collection_recursive(struct node*, struct node*);
+void garbage_collection_dll(struct dll*);
+void garbage_collection_dll_recursive(struct node*, struct node*);
 
 void print_dll(struct dll*);

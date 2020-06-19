@@ -23,15 +23,20 @@ int main(){
 
 	print_dll(list);
 
-	//Memory allocated in main is automatically released
-	struct integer_data* a = initialize_integer_data(5);
-	struct integer_data* b = initialize_integer_data(7);
-	struct integer_data* c = initialize_integer_data(39);
+	//Memory allocated in main is automatically released, no need for free
+	struct integer* a = malloc(sizeof(a));
+	struct integer* b = malloc(sizeof(b));
+	struct integer* c = malloc(sizeof(c));
+
+	//Assign values
+	initialize_integer(a, 5);
+	initialize_integer(b, 4);
+	initialize_integer(c, 23);
+
 
 	insert_node(list, 0, a);
 	insert_node(list, 1, b);
 	insert_node(list, 1, c);
-
 
 	print_dll(list);
 
@@ -42,9 +47,10 @@ int main(){
 
 	print_dll(list);
 
+	printf("Size: %d\n", dll_size(list));
 
 
-	garbage_collection(list);
+	garbage_collection_dll(list);
 
 	printf("######################################\n");
 

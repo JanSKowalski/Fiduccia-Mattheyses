@@ -46,7 +46,7 @@ void print_dll(struct dll* list){
 		//Is there a way to check the data type of the node?
 		// Write a conditional approach to printing based on the type?
 
-		print_integer_data(placeholder->data_structure);
+		print_integer(placeholder->data_structure);
 
 		//struct integer_data* access = placeholder->data_structure;
 
@@ -115,6 +115,14 @@ void insert_node(struct dll* list, int position, void* data_structure){
 	list->size = list->size + 1;
 }
 
+
+/*
+Counts the number of nodes between the two sentinels
+*/
+int dll_size(struct dll* list){
+	return list->size;
+}
+
 //Position is zero indexed, must be a value less than string size
 //NOTE: This is an O(n) implementation
 void remove_node_using_list(struct dll* list, int position){
@@ -151,13 +159,13 @@ struct node* remove_node(struct node* node_being_removed){
 
 //Takes in an initialized dll struct
 //Frees memory
-void garbage_collection(struct dll* list){
+void garbage_collection_dll(struct dll* list){
 
 	struct node* head = list->head;
 
 	//Neither head nor tail have data_structures associated
 	//It's simpler to treat them separately
-	garbage_collection_recursive(head->next, list->tail);
+	garbage_collection_dll_recursive(head->next, list->tail);
 
 	free(head);
 	free(list);
@@ -165,9 +173,9 @@ void garbage_collection(struct dll* list){
 
 
 //Input first(not head) and tail nodes of the ddl
-void garbage_collection_recursive(struct node* temp, struct node* tail){
+void garbage_collection_dll_recursive(struct node* temp, struct node* tail){
 	if (temp != tail){
-		garbage_collection_recursive(temp->next, tail);
+		garbage_collection_dll_recursive(temp->next, tail);
 		free(temp->data_structure);
 	}
 	free(temp);
