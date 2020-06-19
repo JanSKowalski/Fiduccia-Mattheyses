@@ -1,19 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "dll_structure.h"
-
+#include "basic_objects.h"
 
 /*
 An implementation of doubly-linked lists
 Jan Kowalski 3/2020
 */
 
-
-/*
-6/15/2020 Review
-The O(n) implementation of remove() needs to be supplemented with a O(1) remove(),
-	taking the cell pointer directly.
-*/
 
 
 /*
@@ -25,7 +19,7 @@ Inputs: list
 	list - a malloc'd pointer to a dll struct
 Outputs: <none>
 */
-void initialize(struct dll* list){
+void initialize_dll(struct dll* list){
 
 	struct node* head_sentinel = malloc(sizeof(*head_sentinel));
 	struct node* tail_sentinel = malloc(sizeof(*tail_sentinel));
@@ -39,6 +33,7 @@ void initialize(struct dll* list){
 
 
 //Assumes data pointer is to an integer value
+//Used for debugging only, O(n) function
 void print_dll(struct dll* list){
 
 	struct node* placeholder = list->head->next;
@@ -47,13 +42,23 @@ void print_dll(struct dll* list){
 
 	printf("DLL: [");
 	while (nodes_remaining > 0){
-		struct integer_data* access = placeholder->data_structure;
-		int integer_data = access->data;
+
+		//Is there a way to check the data type of the node?
+		// Write a conditional approach to printing based on the type?
+
+		print_integer_data(placeholder->data_structure);
+
+		//struct integer_data* access = placeholder->data_structure;
+
+
+		//int integer_data = access->data;
+		/*
 		if (nodes_remaining == 1)
 			printf("%d", integer_data);
 		else{
 			printf("%d, ", integer_data);
 		}
+		*/
 
 		nodes_remaining--;
 //		index++;
@@ -108,33 +113,6 @@ void insert_node(struct dll* list, int position, void* data_structure){
 	connect_two_nodes(placeholder, new_node);
 
 	list->size = list->size + 1;
-}
-
-struct integer_data* initialize_integer_data(int data){
-	struct integer_data* new_integer = malloc(sizeof(new_integer));
-	new_integer->data = data;
-	return new_integer;
-}
-
-
-/*
-Potential dll data types: integer, cell, net
-*/
-void insert_node_integer(struct dll* list, int position, int data){
-	struct integer_data* new_integer = malloc(sizeof(new_integer));
-	new_integer->data = data;
-	insert_node(list, position, new_integer);
-}
-
-
-
-void insert_node_cell(struct dll* list, int position, int gain, struct dll* nets, int partition, int size){
-	struct cell* new_cell = malloc(sizeof(new_cell));
-	new_cell->gain = gain;
-	new_cell->nets = nets;
-	new_cell->partition = partition;
-	new_cell->size = size;
-	insert_node(list, position, new_cell);
 }
 
 //Position is zero indexed, must be a value less than string size
