@@ -9,7 +9,7 @@ In graph theory terms, cells are nodes and nets are hypergraphs (generalized edg
 
 
 ### The partitioning problem looks to efficiently divide a collection of cells into two collections such that the number of connections/nets between the two partitions is minimized. 
-F and M also introduced the notion of a balance ratio, specified by the user. Within a certain tolerance, the final partioned area should match this ratio.
+F and M also introduced the notion of a balance ratio of areas specified by the user. This is accomplished within a tolerance.
 
 This code is then tested on the ISPD98 suite of testbenching circuits, stored in .are and .netD format. 
 (https://vlsicad.ucsd.edu/UCLAWeb/cheese/ispd98.html)
