@@ -13,7 +13,10 @@ struct cell{
 
 
 struct net{
-	struct dll* cells;
+	struct dll* free_cells;
+	struct dll* locked_cells;
+	int num_cells_in_partition_A;
+	int num_cells_in_partition_B;
 };
 
 

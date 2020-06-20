@@ -11,7 +11,6 @@
 //Integer_data is mostly a test data object for debugging
 void initialize_integer(struct integer* new_integer, int data){
 	new_integer->data = data;
-	return new_integer;
 }
 
 void print_integer(struct integer* object){
@@ -65,4 +64,15 @@ void garbage_collection_cell(struct cell* cell){
 
 
 
-//void initialize_net(
+void initialize_net(struct net* net){
+	struct dll* free_cells = malloc(sizeof(free_cells));
+	net->free_cells = free_cells;
+
+	struct dll* locked_cells = malloc(sizeof(locked_cells));
+	net->locked_cells = locked_cells;
+
+	net->num_cells_in_partition_A = 0;
+	net->num_cells_in_partition_B = 0;
+}
+
+//Some kind of garbage collection for nets

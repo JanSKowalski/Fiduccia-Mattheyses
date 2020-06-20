@@ -1,7 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include "dll_structure.h"
-#include "basic_objects.h"
+#include "main.h"
 
 /*
 An implementation of doubly-linked lists
@@ -9,12 +6,34 @@ Jan Kowalski 3/2020
 */
 
 
+//Keep a list of nets in cutstate
+//Balance is stored in main
+
 int main(){
+	test_input_functions();
+	//test_doubly_linked_list();
+	return 0;
+}
+
+
+void test_input_functions(){
+	printf("######################################\n");
+	printf("Creating CELL array\n");
+
+	struct dll* CELL_array = malloc(sizeof(CELL_array));
+	read_in_are_file(CELL_array);
+
+}
+
+
+
+
+void test_doubly_linked_list(){
 	printf("######################################\n");
 	printf("Attempting intitialization of dll\n");
 
 
-	struct dll* list = malloc(sizeof(*list));
+	struct dll* list = malloc(sizeof(list));
 
 	initialize_dll(list);
 
@@ -53,7 +72,5 @@ int main(){
 	garbage_collection_dll(list);
 
 	printf("######################################\n");
-
-	return 0;
 }
 
