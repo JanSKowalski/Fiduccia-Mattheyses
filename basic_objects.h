@@ -22,6 +22,6 @@ struct net{
 
 void initialize_integer(struct integer*, int);
 void initialize_cell(struct cell*, int, int);
-
+void print_cell_area(struct cell*);
 
 void print_integer(struct integer*);

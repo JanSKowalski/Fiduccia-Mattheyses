@@ -9,6 +9,7 @@ Jan Kowalski 3/2020
 */
 
 
+//DLL lists need to be initialized before they can be used!
 
 /*
 Initialize a doubly linked list
@@ -35,36 +36,15 @@ void initialize_dll(struct dll* list){
 //Assumes data pointer is to an integer value
 //Used for debugging only, O(n) function
 void print_dll(struct dll* list){
-
 	struct node* placeholder = list->head->next;
 	int nodes_remaining = list->size;
-//	int index = 0;
-
 	printf("DLL: [");
 	while (nodes_remaining > 0){
-
-		//Is there a way to check the data type of the node?
-		// Write a conditional approach to printing based on the type?
-
-		print_integer(placeholder->data_structure);
-
-		//struct integer_data* access = placeholder->data_structure;
-
-
-		//int integer_data = access->data;
-		/*
-		if (nodes_remaining == 1)
-			printf("%d", integer_data);
-		else{
-			printf("%d, ", integer_data);
-		}
-		*/
-
+		//print_integer(placeholder->data_structure);
+		print_cell_area(placeholder->data_structure);
 		nodes_remaining--;
-//		index++;
 		placeholder = placeholder->next;
 	}
-
 	printf("]\n");
 }
 

@@ -19,15 +19,20 @@ int main(){
 void test_input_functions(){
 	printf("######################################\n");
 	printf("Creating CELL array\n");
-
 	struct dll* CELL_array = malloc(sizeof(CELL_array));
+	initialize_dll(CELL_array);
 	read_in_are_file(CELL_array);
-
+	printf("Creating NET array\n");
+	struct dll* NET_array = malloc(sizeof(NET_array));
+	initialize_dll(NET_array);
+	//Both cell and net arrays are useful here
+	read_in_netD_file(CELL_array, NET_array);
 }
 
 
 
-
+//Will not work unless the print_dll function is edited to print
+// integer objects (default is cell objects)
 void test_doubly_linked_list(){
 	printf("######################################\n");
 	printf("Attempting intitialization of dll\n");

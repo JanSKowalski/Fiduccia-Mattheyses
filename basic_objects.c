@@ -47,6 +47,13 @@ void add_net_to_cell(struct cell* cell, struct net* net){
 }
 
 
+//Consider deleting
+void print_cell_area(struct cell* object){
+	printf("%d ", object->area);
+}
+
+
+
 //Garbage collection for cells!
 //Need to demalloc nets dll, then cell struct
 
