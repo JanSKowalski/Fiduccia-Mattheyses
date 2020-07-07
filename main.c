@@ -19,14 +19,32 @@ int main(){
 void test_input_functions(){
 	printf("######################################\n");
 	printf("Creating CELL array\n");
-	struct dll* CELL_array = malloc(sizeof(CELL_array));
-	initialize_dll(CELL_array);
-	read_in_are_file(CELL_array);
+	//CELL dll is used to create CELL_array. The array is more desirable because of O(1) access
+	struct dll* CELL_dll = malloc(sizeof(*CELL_dll));
+	initialize_dll(CELL_dll);
+	read_in_are_file(CELL_dll);
+
+	struct cell** CELL_array = create_CELL_array(CELL_dll);
+
+	int i;
+	for (i=0; i < CELL_dll->size; i++){
+		printf("Cell %d area: %d\n",i, CELL_array[i]->area);
+	}
+	garbage_collection_dll(CELL_dll);
+
+
+	printf("######################################\n");
 	printf("Creating NET array\n");
 	struct dll* NET_array = malloc(sizeof(NET_array));
 	initialize_dll(NET_array);
 	//Both cell and net arrays are useful here
+	printf("Readin\n");
 	read_in_netD_file(CELL_array, NET_array);
+
+	printf("Finish\n");
+
+	free(CELL_array);
+	garbage_collection_dll(NET_array);
 }
 
 
@@ -38,7 +56,7 @@ void test_doubly_linked_list(){
 	printf("Attempting intitialization of dll\n");
 
 
-	struct dll* list = malloc(sizeof(list));
+	struct dll* list = malloc(sizeof(*list));
 
 	initialize_dll(list);
 
@@ -48,9 +66,9 @@ void test_doubly_linked_list(){
 	print_dll(list);
 
 	//Memory allocated in main is automatically released, no need for free
-	struct integer* a = malloc(sizeof(a));
-	struct integer* b = malloc(sizeof(b));
-	struct integer* c = malloc(sizeof(c));
+	struct integer* a = malloc(sizeof(*a));
+	struct integer* b = malloc(sizeof(*b));
+	struct integer* c = malloc(sizeof(*c));
 
 	//Assign values
 	initialize_integer(a, 5);

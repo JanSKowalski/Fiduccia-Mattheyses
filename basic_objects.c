@@ -28,6 +28,7 @@ void initialize_cell(struct cell* new_cell, int identifier, int area){
 	new_cell->area = area;
 
 	struct dll* nets = malloc(sizeof(nets));
+	initialize_dll(nets);
 	new_cell->nets = nets;
 
 	new_cell->partition = 0;
@@ -73,9 +74,11 @@ void garbage_collection_cell(struct cell* cell){
 
 void initialize_net(struct net* net){
 	struct dll* free_cells = malloc(sizeof(free_cells));
+	initialize_dll(free_cells);
 	net->free_cells = free_cells;
 
 	struct dll* locked_cells = malloc(sizeof(locked_cells));
+	initialize_dll(locked_cells);
 	net->locked_cells = locked_cells;
 
 	net->num_cells_in_partition_A = 0;

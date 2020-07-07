@@ -4,7 +4,7 @@
 #include "data_input.h"
 #include "basic_objects.h"
 
-void read_in_are_file(struct dll* CELL_array){
+void read_in_are_file(struct dll* CELL_dll){
 	FILE *fp;
 	char line[256];
 	//Open area data file
@@ -16,13 +16,13 @@ void read_in_are_file(struct dll* CELL_array){
 		// We only want to add cells to the cell array
 		if (line[0] == 'a'){
 			//Create cell, set index
-			struct cell* new_cell = malloc(sizeof(new_cell));
-			insert_node(CELL_array, CELL_array->size, new_cell);
-			new_cell->identifier = identifier_index;
+			struct cell* new_cell = malloc(sizeof(*new_cell));
+			insert_node(CELL_dll, CELL_dll->size, new_cell);
 			//extract area information from line
 			char* token = strtok(line, " ");
 			token = strtok(NULL, " ");
-			new_cell->area = atoi(token);
+			//Initialize cell
+			initialize_cell(new_cell, identifier_index, atoi(token));
 			//Prepare for next cell
 			identifier_index += 1;
 		}
@@ -30,8 +30,21 @@ void read_in_are_file(struct dll* CELL_array){
 	fclose(fp);
 }
 
+//Assumes read_in_are_file has been called
+struct cell** create_CELL_array(struct dll* CELL_dll){
+	int number_of_cells = CELL_dll->size;
+	struct cell** CELL_array = malloc(sizeof(struct cell*) * number_of_cells);
+	struct node* placeholder_node = CELL_dll->head;
+	int i;
+	for (i = 0; i < number_of_cells; i++){
+		placeholder_node = access_next_node(placeholder_node);
+		CELL_array[i] = (struct cell*) placeholder_node->data_structure;
+	}
+	return CELL_array;
+}
 
-void read_in_netD_file(struct dll* CELL_array, struct dll* NET_array){
+
+void read_in_netD_file(struct cell** CELL_array, struct dll* NET_array){
 	FILE *fq;
 	char line[256];
 	//Open netlist file
@@ -43,31 +56,40 @@ void read_in_netD_file(struct dll* CELL_array, struct dll* NET_array){
 	while(fgets(line, sizeof(line), fq)){
 		//Split the line into three tokens (first five lines not used [yet])
 		char* first_token = strtok(line, " ");
-		char* second_token = strtok(NULL, " ");
-		//Not necessary
-		//third_token = strtok(NULL, " ");
-
+		char* second_token = NULL;
+		second_token = strtok(NULL, " ");
 		//If the cells are part of a new list, create a new list for them
-		if (*second_token == 's'){
+		if (second_token != NULL && *second_token == 's'){
 			struct net* new_net = malloc(sizeof(new_net));
+			initialize_net(new_net);
 			incubent_net = new_net;
 			printf("net added\n");
 		}
+
 		//If the cell is a regular cell (not a pin), add it to the current net, add net to the pin
 		if (first_token[0] == 'a'){
 			//**Check to see if the "lost" byte is deallocated in valgrind
 			//Remove 'a' from cell ident.
+			printf("access\n");
 			first_token += 1;
 			//Transfer string to integer
+			printf("pointer add\n");
 			int cell_identifier = atoi(first_token);
 			//Access cell
-			struct cell* accessed_cell = CELL_array[cell_identifier];
+			printf("atoi\n");
 
+			struct cell* accessed_cell = CELL_array[cell_identifier];
+			printf("cell pointer\n");
+			int area = accessed_cell->area;
+			printf("are\n");
 			//Add cell to the first position in the net's cell list (O(1) operation)
 			insert_node(incubent_net->free_cells, 0, accessed_cell);
+			printf("add cell to net\n");
 			//Add net to the first position in the cell's netlist
 			insert_node(accessed_cell->nets, 0, incubent_net);
+
 		}
+
 	}
 	fclose(fq);
 }

@@ -103,6 +103,19 @@ int dll_size(struct dll* list){
 	return list->size;
 }
 
+
+
+
+/*
+Given a node in the list, this function returns the next node
+*/
+struct node* access_next_node(struct node* current_node){
+	//Does not check to see if current_node is tail
+	return current_node->next;
+}
+
+
+
 //Position is zero indexed, must be a value less than string size
 //NOTE: This is an O(n) implementation
 void remove_node_using_list(struct dll* list, int position){
@@ -132,8 +145,10 @@ void remove_node_using_list(struct dll* list, int position){
 }
 
 //O(1) remove function requires the pointer to the node
+//Needs to update dll size!! Do not use yet
 struct node* remove_node(struct node* node_being_removed){
 	connect_two_nodes(node_being_removed->previous, node_being_removed->next);
+	//Needs to update dll size!!!!!
 	return node_being_removed;
 }
 
