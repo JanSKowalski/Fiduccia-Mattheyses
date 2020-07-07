@@ -10,6 +10,13 @@ struct node{
 	struct node* next;
 };
 
+typedef enum{
+	INTEGER,
+	CELL,
+	NET
+} datatype;
+
+
 void initialize_dll(struct dll*);
 void connect_two_nodes(struct node*, struct node*);
 
@@ -24,4 +31,4 @@ struct node* remove_node(struct node*);
 void garbage_collection_dll(struct dll*);
 void garbage_collection_dll_recursive(struct node*, struct node*);
 
-void print_dll(struct dll*);
+void print_dll(struct dll*, datatype);

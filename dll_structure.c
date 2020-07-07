@@ -35,13 +35,20 @@ void initialize_dll(struct dll* list){
 
 //Assumes data pointer is to an integer value
 //Used for debugging only, O(n) function
-void print_dll(struct dll* list){
+void print_dll(struct dll* list, datatype node_data){
 	struct node* placeholder = list->head->next;
 	int nodes_remaining = list->size;
 	printf("DLL: [");
 	while (nodes_remaining > 0){
-		//print_integer(placeholder->data_structure);
-		print_cell_area(placeholder->data_structure);
+		if (node_data == INTEGER){
+			print_integer(placeholder->data_structure);
+		}
+		else if (node_data == CELL){
+			print_cell_area(placeholder->data_structure);
+		}
+		else if (node_data == NET){
+			print_net(placeholder->data_structure);
+		}
 		nodes_remaining--;
 		placeholder = placeholder->next;
 	}

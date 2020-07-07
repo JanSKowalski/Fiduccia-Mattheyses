@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "basic_objects.h"
+#include "dll_structure.h"
 
 //This is a collection of objects that can be stored in the doubly-linked list
 
@@ -72,7 +73,9 @@ void garbage_collection_cell(struct cell* cell){
 
 
 
-void initialize_net(struct net* net){
+void initialize_net(struct net* net, int identifier){
+	net->identifier = identifier;
+
 	struct dll* free_cells = malloc(sizeof(free_cells));
 	initialize_dll(free_cells);
 	net->free_cells = free_cells;
@@ -83,6 +86,15 @@ void initialize_net(struct net* net){
 
 	net->num_cells_in_partition_A = 0;
 	net->num_cells_in_partition_B = 0;
+
+	net->number_of_cells=0;
 }
+
+void print_net(struct net* net){
+	struct dll* cells = net->free_cells;
+	printf("Net %d has %d cell[s]\n", net->identifier, cells->size);
+	print_dll(cells, CELL);
+}
+
 
 //Some kind of garbage collection for nets

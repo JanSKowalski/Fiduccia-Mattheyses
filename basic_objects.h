@@ -13,6 +13,8 @@ struct cell{
 
 
 struct net{
+	int number_of_cells;
+	int identifier;
 	struct dll* free_cells;
 	struct dll* locked_cells;
 	int num_cells_in_partition_A;
@@ -23,5 +25,8 @@ struct net{
 void initialize_integer(struct integer*, int);
 void initialize_cell(struct cell*, int, int);
 void print_cell_area(struct cell*);
+
+void initialize_net(struct net*, int);
+void print_net(struct net*);
 
 void print_integer(struct integer*);

@@ -30,6 +30,9 @@ void test_input_functions(){
 	for (i=0; i < CELL_dll->size; i++){
 		printf("Cell %d area: %d\n",i, CELL_array[i]->area);
 	}
+
+	print_dll(CELL_dll, CELL);
+
 	garbage_collection_dll(CELL_dll);
 
 
@@ -38,12 +41,15 @@ void test_input_functions(){
 	struct dll* NET_array = malloc(sizeof(NET_array));
 	initialize_dll(NET_array);
 	//Both cell and net arrays are useful here
-	printf("Readin\n");
 	read_in_netD_file(CELL_array, NET_array);
+	//Print results
+	//for (i=0; i < NET_array->size; i++){
+		print_dll(NET_array, NET);
+		printf("\n");
+	//}
 
-	printf("Finish\n");
 
-	free(CELL_array);
+	//free(CELL_array);
 	garbage_collection_dll(NET_array);
 }
 
@@ -63,7 +69,7 @@ void test_doubly_linked_list(){
 	printf("Initialization successful\n");
 
 
-	print_dll(list);
+	print_dll(list, INTEGER);
 
 	//Memory allocated in main is automatically released, no need for free
 	struct integer* a = malloc(sizeof(*a));
@@ -80,14 +86,14 @@ void test_doubly_linked_list(){
 	insert_node(list, 1, b);
 	insert_node(list, 1, c);
 
-	print_dll(list);
+	print_dll(list, INTEGER);
 
 	remove_node_using_list(list, 1);
 
 	//remove_node requires a pointer to the node, so this doesn't work
 	//remove_node(b);
 
-	print_dll(list);
+	print_dll(list, INTEGER);
 
 	printf("Size: %d\n", dll_size(list));
 
