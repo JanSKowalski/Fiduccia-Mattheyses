@@ -38,13 +38,12 @@ void initialize_dll(struct dll* list){
 void print_dll(struct dll* list, datatype node_data){
 	struct node* placeholder = list->head->next;
 	int nodes_remaining = list->size;
-	printf("DLL: [");
 	while (nodes_remaining > 0){
 		if (node_data == INTEGER){
 			print_integer(placeholder->data_structure);
 		}
 		else if (node_data == CELL){
-			print_cell_area(placeholder->data_structure);
+			print_cell(placeholder->data_structure);
 		}
 		else if (node_data == NET){
 			print_net(placeholder->data_structure);
@@ -52,7 +51,7 @@ void print_dll(struct dll* list, datatype node_data){
 		nodes_remaining--;
 		placeholder = placeholder->next;
 	}
-	printf("]\n");
+	printf("\n");
 }
 
 /*

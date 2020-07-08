@@ -24,16 +24,20 @@ void test_input_functions(){
 	initialize_dll(CELL_dll);
 	read_in_are_file(CELL_dll);
 
+
 	struct cell** CELL_array = create_CELL_array(CELL_dll);
+
+	printf("Main function\n");
 
 	int i;
 	for (i=0; i < CELL_dll->size; i++){
+		printf("Cell %d identifier: %d\n",i, CELL_array[i]->identifier);
 		printf("Cell %d area: %d\n",i, CELL_array[i]->area);
 	}
 
+	printf("Cell_dll: ");
 	print_dll(CELL_dll, CELL);
 
-	garbage_collection_dll(CELL_dll);
 
 
 	printf("######################################\n");
@@ -50,7 +54,10 @@ void test_input_functions(){
 
 
 	//free(CELL_array);
-	garbage_collection_dll(NET_array);
+	//garbage_collection_dll(NET_array);
+	//If you delete the cells, they can't be accessed. Always put gc at the end, don't be clever.
+	//garbage_collection_dll(CELL_dll);
+
 }
 
 

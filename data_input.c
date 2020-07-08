@@ -39,6 +39,7 @@ struct cell** create_CELL_array(struct dll* CELL_dll){
 	for (i = 0; i < number_of_cells; i++){
 		placeholder_node = access_next_node(placeholder_node);
 		CELL_array[i] = (struct cell*) placeholder_node->data_structure;
+		struct cell* test = (struct cell*) placeholder_node->data_structure;
 	}
 	return CELL_array;
 }

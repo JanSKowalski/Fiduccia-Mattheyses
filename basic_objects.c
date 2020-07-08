@@ -49,6 +49,10 @@ void add_net_to_cell(struct cell* cell, struct net* net){
 }
 
 
+void print_cell(struct cell* cell){
+	printf("%d ", cell->identifier);
+}
+
 //Consider deleting
 void print_cell_area(struct cell* object){
 	printf("%d ", object->area);
