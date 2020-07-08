@@ -39,7 +39,6 @@ struct cell** create_CELL_array(struct dll* CELL_dll){
 	for (i = 0; i < number_of_cells; i++){
 		placeholder_node = access_next_node(placeholder_node);
 		CELL_array[i] = (struct cell*) placeholder_node->data_structure;
-		struct cell* test = (struct cell*) placeholder_node->data_structure;
 	}
 	return CELL_array;
 }
@@ -61,6 +60,20 @@ void read_in_netD_file(struct cell** CELL_array, struct dll* NET_array){
 		second_token = strtok(NULL, " ");
 		//If the cells are part of a new list, create a new list for them
 		if (second_token != NULL && *second_token == 's'){
+
+/*
+			//If incubent_net only has one cell (cell-pin net), delete
+			if(incubent_net->number_of_cells < 2){
+				//remove net from cell
+				//remove cell from net
+				//free(incubent_net);
+				//remove_node from NET_array
+				//replace index
+				net_index -= 1;
+			}
+
+*/
+			//Form new net
 			struct net* new_net = malloc(sizeof(new_net));
 			initialize_net(new_net, net_index);
 			//Add net to NET_array
@@ -89,4 +102,18 @@ void read_in_netD_file(struct cell** CELL_array, struct dll* NET_array){
 		}
 	}
 	fclose(fq);
+}
+
+
+//Assumes read_in_netD_file has been called
+struct net** create_NET_array(struct dll* NET_dll){
+	int number_of_nets = NET_dll->size;
+	struct net** NET_array = malloc(sizeof(struct net*) * number_of_nets);
+	struct node* placeholder_node = NET_dll->head;
+	int i;
+	for (i = 0; i < number_of_nets; i++){
+		placeholder_node = access_next_node(placeholder_node);
+		NET_array[i] = (struct net*) placeholder_node->data_structure;
+	}
+	return NET_array;
 }

@@ -31,7 +31,6 @@ void test_input_functions(){
 
 	int i;
 	for (i=0; i < CELL_dll->size; i++){
-		printf("Cell %d identifier: %d\n",i, CELL_array[i]->identifier);
 		printf("Cell %d area: %d\n",i, CELL_array[i]->area);
 	}
 
@@ -42,19 +41,31 @@ void test_input_functions(){
 
 	printf("######################################\n");
 	printf("Creating NET array\n");
-	struct dll* NET_array = malloc(sizeof(NET_array));
-	initialize_dll(NET_array);
+	struct dll* NET_dll = malloc(sizeof(NET_dll));
+	initialize_dll(NET_dll);
 	//Both cell and net arrays are useful here
-	read_in_netD_file(CELL_array, NET_array);
+	read_in_netD_file(CELL_array, NET_dll);
+
+
+	struct net** NET_array = create_NET_array(NET_dll);
+
 	//Print results
 	//for (i=0; i < NET_array->size; i++){
-		print_dll(NET_array, NET);
-		printf("\n");
+	print_dll(NET_dll, NET);
+	printf("\n");
 	//}
 
+	printf("Attempting to delete net 4\n");
+	delete_net(NET_array[3]);
+	printf("Net 4 deleted\n");
 
-	//free(CELL_array);
-	//garbage_collection_dll(NET_array);
+	print_dll(NET_dll, NET);
+	printf("\n");
+
+
+	//printf("Attempt to dealloc net\n");
+	//free(NET_array
+	//garbage_collection_dll(NET_array, DEALLOC_DATA);
 	//If you delete the cells, they can't be accessed. Always put gc at the end, don't be clever.
 	//garbage_collection_dll(CELL_dll);
 
@@ -105,7 +116,7 @@ void test_doubly_linked_list(){
 	printf("Size: %d\n", dll_size(list));
 
 
-	garbage_collection_dll(list);
+	garbage_collection_dll(list, DEALLOC_DATA);
 
 	printf("######################################\n");
 }

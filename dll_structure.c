@@ -123,6 +123,7 @@ struct node* access_next_node(struct node* current_node){
 
 
 //Position is zero indexed, must be a value less than string size
+//Frees the data structure
 //NOTE: This is an O(n) implementation
 void remove_node_using_list(struct dll* list, int position){
 
@@ -150,6 +151,7 @@ void remove_node_using_list(struct dll* list, int position){
 	list->size = list->size - 1;
 }
 
+//Does not free the data structure, returns the node
 //O(1) remove function requires the pointer to the node
 //Needs to update dll size!! Do not use yet
 struct node* remove_node(struct node* node_being_removed){
@@ -160,13 +162,13 @@ struct node* remove_node(struct node* node_being_removed){
 
 //Takes in an initialized dll struct
 //Frees memory
-void garbage_collection_dll(struct dll* list){
+void garbage_collection_dll(struct dll* list, garbage_handler option){
 
 	struct node* head = list->head;
 
 	//Neither head nor tail have data_structures associated
 	//It's simpler to treat them separately
-	garbage_collection_dll_recursive(head->next, list->tail);
+	garbage_collection_dll_recursive(head->next, list->tail, option);
 
 	free(head);
 	free(list);
@@ -174,10 +176,13 @@ void garbage_collection_dll(struct dll* list){
 
 
 //Input first(not head) and tail nodes of the ddl
-void garbage_collection_dll_recursive(struct node* temp, struct node* tail){
+void garbage_collection_dll_recursive(struct node* temp, struct node* tail, garbage_handler option){
 	if (temp != tail){
-		garbage_collection_dll_recursive(temp->next, tail);
-		free(temp->data_structure);
+		garbage_collection_dll_recursive(temp->next, tail, option);
+		if (option == DEALLOC_DATA){
+			free(temp->data_structure);
+		}
 	}
 	free(temp);
 }
+
