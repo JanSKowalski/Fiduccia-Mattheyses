@@ -44,7 +44,7 @@ struct cell** create_CELL_array(struct dll* CELL_dll){
 }
 
 
-void read_in_netD_file(struct cell** CELL_array, struct dll* NET_array){
+void read_in_netD_file(struct cell** CELL_array, struct dll* NET_dll){
 	FILE *fq;
 	char line[256];
 	//Open netlist file
@@ -52,8 +52,9 @@ void read_in_netD_file(struct cell** CELL_array, struct dll* NET_array){
 	//Unique identifier for every net
 	int net_index = 0;
 	//A pointer to the current net, so that cells can be added to it.
-	struct net* incubent_net;
+	struct net* incubent_net = NULL;
 	while(fgets(line, sizeof(line), fq)){
+		printf("Loop\n");
 		//Split the line into three tokens (first five lines not used [yet])
 		char* first_token = strtok(line, " ");
 		char* second_token = NULL;
@@ -61,23 +62,28 @@ void read_in_netD_file(struct cell** CELL_array, struct dll* NET_array){
 		//If the cells are part of a new list, create a new list for them
 		if (second_token != NULL && *second_token == 's'){
 
-/*
+			printf("s reached\n");
 			//If incubent_net only has one cell (cell-pin net), delete
-			if(incubent_net->number_of_cells < 2){
-				//remove net from cell
-				//remove cell from net
-				//free(incubent_net);
-				//remove_node from NET_array
+			if(incubent_net != NULL && incubent_net->number_of_cells < 2){
+				printf("Before delete\n");
+				//Clean up many-to-many net cell relationships
+				delete_net(incubent_net);
+				printf("After delete, before free\n");
+				//free memory
+//				free(incubent_net);
+				//Remove from NET_dll
+				remove_node_using_list(NET_dll, 0);
+				printf("After free\n");
 				//replace index
 				net_index -= 1;
 			}
 
-*/
+
 			//Form new net
 			struct net* new_net = malloc(sizeof(new_net));
 			initialize_net(new_net, net_index);
-			//Add net to NET_array
-			insert_node(NET_array, net_index, new_net);
+			//Add net to NET_array in first position
+			insert_node(NET_dll, 0, new_net);
 			//Replace old net
 			incubent_net = new_net;
 			net_index += 1;
@@ -101,6 +107,24 @@ void read_in_netD_file(struct cell** CELL_array, struct dll* NET_array){
 			incubent_net->number_of_cells += 1;
 		}
 	}
+
+	//Check whether the last net is of only one cell, delete if it is
+	if(incubent_net != NULL && incubent_net->number_of_cells < 2){
+		printf("Before delete\n");
+		//Clean up many-to-many net cell relationships
+		delete_net(incubent_net);
+		printf("After delete, before free\n");
+		//free memory
+//				free(incubent_net);
+		//Remove from NET_dll
+		remove_node_using_list(NET_dll, 0);
+		printf("After free\n");
+		//replace index
+		net_index -= 1;
+	}
+
+
+
 	fclose(fq);
 }
 
@@ -108,10 +132,12 @@ void read_in_netD_file(struct cell** CELL_array, struct dll* NET_array){
 //Assumes read_in_netD_file has been called
 struct net** create_NET_array(struct dll* NET_dll){
 	int number_of_nets = NET_dll->size;
+	printf("num nets: %d\n", number_of_nets);
 	struct net** NET_array = malloc(sizeof(struct net*) * number_of_nets);
 	struct node* placeholder_node = NET_dll->head;
 	int i;
-	for (i = 0; i < number_of_nets; i++){
+	for (i = number_of_nets - 1; i >= 0; i--){
+		printf("loop\n");
 		placeholder_node = access_next_node(placeholder_node);
 		NET_array[i] = (struct net*) placeholder_node->data_structure;
 	}

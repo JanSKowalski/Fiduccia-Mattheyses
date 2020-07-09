@@ -151,9 +151,7 @@ void delete_net_helper(struct net* undesired_net, struct dll* cellist, struct no
 				//Take the node out of the node_list
 				remove_node(temp_node_for_net, temp_cell_netlist);
 				//Free the node (but not the net)
-				printf("Attempting to free node\n");
 				free(temp_node_for_net);
-				printf("Freed node\n");
 				//We've removed the net from the cell's netlist, we can skip the rest of the netlist and move to the next cell that has the undesired_net
 				break;
 			}

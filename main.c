@@ -58,8 +58,12 @@ void test_input_functions(){
 	printf("Creating NET array\n");
 	struct dll* NET_dll = malloc(sizeof(NET_dll));
 	initialize_dll(NET_dll);
+	printf("NET_dll initialized\n");
 	//Both cell and net arrays are useful here
 	read_in_netD_file(CELL_array, NET_dll);
+	printf("read_in_netD completed\n");
+
+	print_dll(NET_dll, NET);
 
 
 	struct net** NET_array = create_NET_array(NET_dll);
@@ -70,12 +74,17 @@ void test_input_functions(){
 	printf("\n");
 	//}
 
-	printf("Attempting to delete net 2\n");
-	delete_net(NET_array[2]);
-	printf("Net 2 deleted\n");
+	//printf("Attempting to delete net 2\n");
+	//delete_net(NET_array[2]);
+	//printf("Net 2 deleted\n");
 
 	printf("\n");
 
+	int size = NET_dll->size;
+//	int i;
+//	for (int i = 0; i < size; i++){
+//		free(net_array[i]);
+//	}
 
 	//printf("Attempt to dealloc net\n");
 	//free(NET_array
