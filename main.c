@@ -8,21 +8,6 @@ Jan Kowalski 3/2020
 
 //Keep a list of nets in cutstate
 //Balance is stored in main
-
-
-void testing_allocation(){
-	struct net* test = malloc(sizeof(test));
-	initialize_net(test, 0);
-	garbage_collection_dll(test->free_cells, DEALLOC_DATA);
-	garbage_collection_dll(test->locked_cells, DEALLOC_DATA);
-	free(test);
-	printf("Test freed\n");
-
-}
-
-
-
-
 int main(){
 	//testing_allocation();
 	test_input_functions();
@@ -58,10 +43,8 @@ void test_input_functions(){
 	printf("Creating NET array\n");
 	struct dll* NET_dll = malloc(sizeof(NET_dll));
 	initialize_dll(NET_dll);
-	printf("NET_dll initialized\n");
 	//Both cell and net arrays are useful here
 	read_in_netD_file(CELL_array, NET_dll);
-	printf("read_in_netD completed\n");
 
 	print_dll(NET_dll, NET);
 
@@ -70,21 +53,24 @@ void test_input_functions(){
 
 	//Print results
 	//for (i=0; i < NET_array->size; i++){
-	print_dll(NET_dll, NET);
-	printf("\n");
+	//print_dll(NET_dll, NET);
+	//printf("\n");
 	//}
 
-	//printf("Attempting to delete net 2\n");
-	//delete_net(NET_array[2]);
-	//printf("Net 2 deleted\n");
+/*
+	printf("Attempting to delete net 2\n");
+	delete_net(NET_array[2]);
+	remove_node_using_list(NET_dll, 0);
+	printf("Net 2 deleted\n");
 
 	printf("\n");
-
-	int size = NET_dll->size;
-//	int i;
-//	for (int i = 0; i < size; i++){
-//		free(net_array[i]);
-//	}
+	print_dll(NET_dll, NET);
+*/
+	//Free references to Nets in NET_array
+	//int size = NET_dll->size;
+	//for (i = 0; i < size; i++){
+	//	free(NET_array[i]);
+	//}
 
 	//printf("Attempt to dealloc net\n");
 	//free(NET_array
@@ -94,6 +80,16 @@ void test_input_functions(){
 
 }
 
+
+void testing_allocation(){
+	struct net* test = malloc(sizeof(test));
+	initialize_net(test, 0);
+	garbage_collection_dll(test->free_cells, DEALLOC_DATA);
+	garbage_collection_dll(test->locked_cells, DEALLOC_DATA);
+	free(test);
+	printf("Test freed\n");
+
+}
 
 
 //Will not work unless the print_dll function is edited to print

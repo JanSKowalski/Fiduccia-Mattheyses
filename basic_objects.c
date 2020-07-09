@@ -143,7 +143,7 @@ void delete_net_helper(struct net* undesired_net, struct dll* cellist, struct no
 		temp_cell = temp_node_for_cell->data_structure;
 		temp_cell_netlist = temp_cell->nets;
 		temp_node_for_net = ((struct node*)temp_cell_netlist->head)->next;
-		print_dll(temp_cell_netlist, NET);
+		//print_dll(temp_cell_netlist, NET);
 		//Look through each net in the netlist
 		while (temp_node_for_net != temp_cell_netlist->tail){
 			temp_net = temp_node_for_net->data_structure;
@@ -160,7 +160,7 @@ void delete_net_helper(struct net* undesired_net, struct dll* cellist, struct no
 		//Move to next
 		temp_node_for_cell = temp_node_for_cell->next;
 
-		print_dll(temp_cell_netlist, NET);
+		//print_dll(temp_cell_netlist, NET);
 
 	}
 
