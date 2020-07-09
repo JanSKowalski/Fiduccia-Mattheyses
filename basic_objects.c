@@ -89,8 +89,9 @@ void initialize_net(struct net* net, int identifier){
 	initialize_dll(locked_cells);
 	net->locked_cells = locked_cells;
 
-	net->num_cells_in_partition_A = 0;
-	net->num_cells_in_partition_B = 0;
+	//This causes errors, for some reason
+	//net->number_cells_in_partition_B = 0;
+	//net->number_cells_in_partition_A = 1;
 
 	net->number_of_cells=0;
 }
@@ -103,12 +104,29 @@ void print_net(struct net* net){
 
 
 //Deletes the net and the metadata, but doesn't delete the cells
+//Does not remove the references in NET_dll, NET_array -- that should be done manually
+//  Avoids freeing memory twice
 void delete_net(struct net* undesired_net){
 	//Nets have a list of free cells and a list of locked cells, both of which need to be dealt with
 	//List of free cells
 	struct dll* free_cells = undesired_net->free_cells;
 	//The first datanode in free_cells
 	struct node* temp_node_for_cell = ((struct node*)free_cells->head)->next;
+
+	delete_net_helper(undesired_net, free_cells, temp_node_for_cell);
+	garbage_collection_dll(undesired_net->free_cells, DO_NOT_DEALLOC_DATA);
+
+
+	struct dll* locked_cells = undesired_net->locked_cells;
+	temp_node_for_cell = ((struct node*)locked_cells->head)->next;
+
+	delete_net_helper(undesired_net, locked_cells, temp_node_for_cell);
+	garbage_collection_dll(undesired_net->locked_cells, DO_NOT_DEALLOC_DATA);
+
+}
+
+
+void delete_net_helper(struct net* undesired_net, struct dll* cellist, struct node* temp_node_for_cell){
 	//The cell data structure being accessed at each node
 	struct cell* temp_cell;
 	//The cell's netlist being accessed at each node
@@ -121,19 +139,20 @@ void delete_net(struct net* undesired_net){
 
 
 	//Remove references to the net from every cell's netlist
-	while (temp_node_for_cell != free_cells->tail){
+	while (temp_node_for_cell != cellist->tail){
 		temp_cell = temp_node_for_cell->data_structure;
 		temp_cell_netlist = temp_cell->nets;
 		temp_node_for_net = ((struct node*)temp_cell_netlist->head)->next;
+		print_dll(temp_cell_netlist, NET);
 		//Look through each net in the netlist
 		while (temp_node_for_net != temp_cell_netlist->tail){
 			temp_net = temp_node_for_net->data_structure;
 			if (temp_net == undesired_net){
 				//Take the node out of the node_list
-				struct node* offending_node = remove_node(temp_node_for_net);
+				remove_node(temp_node_for_net, temp_cell_netlist);
 				//Free the node (but not the net)
 				printf("Attempting to free node\n");
-				free(offending_node);
+				free(temp_node_for_net);
 				printf("Freed node\n");
 				//We've removed the net from the cell's netlist, we can skip the rest of the netlist and move to the next cell that has the undesired_net
 				break;
@@ -142,19 +161,13 @@ void delete_net(struct net* undesired_net){
 		}
 		//Move to next
 		temp_node_for_cell = temp_node_for_cell->next;
+
+		print_dll(temp_cell_netlist, NET);
+
 	}
 
 
 
-	struct dll* locked_cells = undesired_net->locked_cells;
-
-	//Do something about NET_dll, NET_array
-
-
-	//Should be safe, by now all references to this net are deleted
-	//printf("Freeing net\n");
-	//free(undesired_net);
-	//printf("Freed net\n");
 }
 
 //############################################################

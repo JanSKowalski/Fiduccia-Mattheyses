@@ -153,10 +153,10 @@ void remove_node_using_list(struct dll* list, int position){
 
 //Does not free the data structure, returns the node
 //O(1) remove function requires the pointer to the node
-//Needs to update dll size!! Do not use yet
-struct node* remove_node(struct node* node_being_removed){
+//UPDATE DLL_SIZE WHEN YOU USE THIS FUNCTION!!!!!!!!
+struct node* remove_node(struct node* node_being_removed, struct dll* list){
 	connect_two_nodes(node_being_removed->previous, node_being_removed->next);
-	//Needs to update dll size!!!!!
+	list->size -= 1;
 	return node_being_removed;
 }
 
@@ -169,7 +169,6 @@ void garbage_collection_dll(struct dll* list, garbage_handler option){
 	//Neither head nor tail have data_structures associated
 	//It's simpler to treat them separately
 	garbage_collection_dll_recursive(head->next, list->tail, option);
-
 	free(head);
 	free(list);
 }

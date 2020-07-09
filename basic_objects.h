@@ -17,8 +17,9 @@ struct net{
 	int identifier;
 	struct dll* free_cells;
 	struct dll* locked_cells;
-	int num_cells_in_partition_A;
-	int num_cells_in_partition_B;
+//This causes errors, for some reason
+//	int number_cells_in_partition_B;
+//	int number_cells_in_partition_A;
 };
 
 struct partition{
@@ -36,6 +37,7 @@ void print_cell_area(struct cell*);
 
 void initialize_net(struct net*, int);
 void delete_net(struct net*);
+void delete_net_helper(struct net*, struct dll*, struct node*);
 void print_net(struct net*);
 
 void initialize_partition(struct partition*);

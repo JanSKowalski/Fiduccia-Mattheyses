@@ -9,7 +9,22 @@ Jan Kowalski 3/2020
 //Keep a list of nets in cutstate
 //Balance is stored in main
 
+
+void testing_allocation(){
+	struct net* test = malloc(sizeof(test));
+	initialize_net(test, 0);
+	garbage_collection_dll(test->free_cells, DEALLOC_DATA);
+	garbage_collection_dll(test->locked_cells, DEALLOC_DATA);
+	free(test);
+	printf("Test freed\n");
+
+}
+
+
+
+
 int main(){
+	//testing_allocation();
 	test_input_functions();
 	//test_doubly_linked_list();
 	return 0;
@@ -55,11 +70,10 @@ void test_input_functions(){
 	printf("\n");
 	//}
 
-	printf("Attempting to delete net 4\n");
-	delete_net(NET_array[3]);
-	printf("Net 4 deleted\n");
+	printf("Attempting to delete net 2\n");
+	delete_net(NET_array[2]);
+	printf("Net 2 deleted\n");
 
-	print_dll(NET_dll, NET);
 	printf("\n");
 
 
