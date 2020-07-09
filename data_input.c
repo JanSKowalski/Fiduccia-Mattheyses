@@ -3,32 +3,84 @@
 #include <string.h>
 #include "data_input.h"
 
-void read_in_are_file(struct dll* CELL_dll){
+
+//Takes in are and netD filenames
+//Only malloc CELL_array and NET_array in main
+struct array_metadata* read_in_data_to_arrays(struct cell** CELL_array, struct net** NET_array, char* are_filename, char* netD_filename){
+
+	//Create a record of the array sizes
+	struct array_metadata* sizes = malloc(sizeof(sizes));
+
+	//Malloc the CELL_array, using info from count_cells
+	int number_of_cells = count_cells_in_are_file(are_filename);
+	CELL_array = malloc(sizeof(struct cell*) * number_of_cells);
+
+	//Populate the array with cell structs
+	read_in_are_file(CELL_array, are_filename);
+
+
+	int number_of_nets = count_nets_in_netD_file(netD_filename);
+	NET_array = malloc(sizeof(struct net*) * number_of_nets);
+
+	read_in_netD_file(CELL_array, NET_array, netD_filename);
+
+	//Store the metadata information
+	sizes->number_of_cells = number_of_cells;
+	sizes->number_of_nets = number_of_nets;
+	return sizes;
+
+}
+
+//Returns the number of cells (not pins) in the are file
+int count_cells_in_are_file(char* are_filename){
 	FILE *fp;
 	char line[256];
-	//Open area data file
-	fp = fopen("testdata.are", "r");
-	int identifier_index = 0;
-	//Loop through area file, check each line (delimited by newline)
+	int counter = 0;
+	fp = fopen(are_filename, "r");
+	//loop through lines, count along the way
 	while (fgets(line, sizeof(line), fp)){
-		//Options are a (for cell) and p (for pin)
-		// We only want to add cells to the cell array
 		if (line[0] == 'a'){
-			//Create cell, set index
-			struct cell* new_cell = malloc(sizeof(*new_cell));
-			insert_node(CELL_dll, identifier_index, new_cell);
+			counter++;
+		}
+	}
+	return counter;
+}
+
+
+
+
+void read_in_are_file(struct cell** CELL_array, char* are_filename){
+	FILE *fp;
+	char line[256];
+	fp = fopen(are_filename, "r");
+	//Each cell struct gets a unique identifier
+	int index = 0;
+	//loop through lines, malloc cells as they appear in the .are file
+	while (fgets(line, sizeof(line), fp)){
+		//    a (for cell) / p (for pin)
+		if (line[0] == 'a'){
 			//extract area information from line
 			char* token = strtok(line, " ");
 			token = strtok(NULL, " ");
-			//Initialize cell
-			initialize_cell(new_cell, identifier_index, atoi(token));
+			//Create cell, set index
+			struct cell* new_cell = malloc(sizeof(*new_cell));
+			//Set the index and area information
+			initialize_cell(new_cell, index, atoi(token));
+			//Add to CELL_array
+			CELL_array[index] = new_cell;
+
+			//insert_node(CELL_dll, identifier_index, new_cell);
+
+
 			//Prepare for next cell
-			identifier_index += 1;
+			index++;
 		}
 	}
 	fclose(fp);
 }
 
+//Can be tossed
+/*
 //Assumes read_in_are_file has been called
 struct cell** create_CELL_array(struct dll* CELL_dll){
 	int number_of_cells = CELL_dll->size;
@@ -41,37 +93,53 @@ struct cell** create_CELL_array(struct dll* CELL_dll){
 	}
 	return CELL_array;
 }
+*/
 
 
-void read_in_netD_file(struct cell** CELL_array, struct dll* NET_dll){
-	FILE *fq;
+
+//Returns the number of nets in the netD file
+int count_nets_in_netD_file(char* netD_filename){
+	FILE *fp;
 	char line[256];
-	//Open netlist file
-	fq = fopen("testdata.netD", "r");
-	//Unique identifier for every net
+	int counter = 0;
+	fp = fopen(netD_filename, "r");
+	//loop through lines, count along the way
+	while (fgets(line, sizeof(line), fp)){
+		//Split the line into tokens, look for 's' indicating the start of a net
+		strtok(line, " ");
+		char* second_token = NULL;
+		second_token = strtok(NULL, " ");
+		if (second_token != NULL && *second_token == 's'){
+			counter++;
+		}
+	}
+	return counter;
+}
+
+
+void read_in_netD_file(struct cell** CELL_array, struct net** NET_array, char* netD_filename){
+	FILE *fp;
+	char line[256];
+	fp = fopen(netD_filename, "r");
 	int net_index = 0;
 	//A pointer to the current net, so that cells can be added to it.
 	struct net* incubent_net = NULL;
-	while(fgets(line, sizeof(line), fq)){
-		//Split the line into three tokens (first five lines not used [yet])
+	//loop through each line, extract information about the net connections
+	while(fgets(line, sizeof(line), fp)){
+
 		char* first_token = strtok(line, " ");
 		char* second_token = NULL;
 		second_token = strtok(NULL, " ");
-
 		//If the cells are part of a new list, create a new list for them
 		if (second_token != NULL && *second_token == 's'){
-
 			//If incubent_net only has one cell (cell-pin net), delete
-			net_index = check_net(incubent_net, NET_dll, net_index);
-
-			//Form new net
+			net_index = check_net(incubent_net, net_index);
+			//Setup new net with info
 			struct net* new_net = malloc(sizeof(new_net));
 			initialize_net(new_net, net_index);
-			//Add net to NET_array in first position
-			insert_node(NET_dll, 0, new_net);
-			//Replace old net
+			NET_array[net_index] = new_net;
 			incubent_net = new_net;
-			net_index += 1;
+			net_index++;
 		}
 
 		//If the cell is a regular cell (not a pin), add it to the current net, add net to the pin
@@ -81,9 +149,10 @@ void read_in_netD_file(struct cell** CELL_array, struct dll* NET_dll){
 			first_token += 1;
 			//Transfer string to integer
 			int cell_identifier = atoi(first_token);
-			//Access cell
 			struct cell* accessed_cell = CELL_array[cell_identifier];
-			int area = accessed_cell->area;
+			printf("cell num: %d\n", accessed_cell->identifier);
+
+
 			//Add cell to the first position in the net's cell list (O(1) operation)
 			insert_node(incubent_net->free_cells, 0, accessed_cell);
 			//Add net to the first position in the cell's netlist
@@ -93,34 +162,42 @@ void read_in_netD_file(struct cell** CELL_array, struct dll* NET_dll){
 		}
 	}
 	//Check whether the last net is of only one cell, delete if it is
-	net_index = check_net(incubent_net, NET_dll, net_index);
-	fclose(fq);
+	net_index = check_net(incubent_net, net_index);
+	fclose(fp);
 }
 
 //Returns the correct net_index for the new net after this function is called in read_in_netD_file
-int check_net(struct net* incubent_net, struct dll* NET_dll, int net_index){
+int check_net(struct net* incubent_net, int net_index){
 	if(incubent_net != NULL && incubent_net->number_of_cells < 2){
 		//Clean up many-to-many net cell relationships
 		delete_net(incubent_net);
 		//free memory
 //				free(incubent_net);
 		//Remove from NET_dll
-		remove_node_using_list(NET_dll, 0);
+		//remove_node_using_list(NET_dll, 0);
 		//replace index
-		net_index -= 1;
+		net_index--;
 	}
 	return net_index;
 }
 
+
+
+
+//
+
 //Assumes read_in_netD_file has been called
-struct net** create_NET_array(struct dll* NET_dll){
-	int number_of_nets = NET_dll->size;
-	struct net** NET_array = malloc(sizeof(struct net*) * number_of_nets);
-	struct node* placeholder_node = NET_dll->head;
-	int i;
-	for (i = number_of_nets - 1; i >= 0; i--){
-		placeholder_node = access_next_node(placeholder_node);
-		NET_array[i] = (struct net*) placeholder_node->data_structure;
-	}
-	return NET_array;
-}
+//struct net** create_NET_array(struct dll* NET_dll){
+//	int number_of_nets = NET_dll->size;
+//	struct net** NET_array = malloc(sizeof(struct net*) * number_of_nets);
+//	struct node* placeholder_node = NET_dll->head;
+//	int i;
+//	for (i = number_of_nets - 1; i >= 0; i--){
+//		placeholder_node = access_next_node(placeholder_node);
+//		NET_array[i] = (struct net*) placeholder_node->data_structure;
+//	}
+//	return NET_array;
+//}
+
+
+

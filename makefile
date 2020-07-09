@@ -1,7 +1,7 @@
 #Note, -g flag enabled by default
 
-all: main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o
-	gcc -o main.out main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o -g
+all: main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o fiduccia_mattheyses.h
+	gcc -o main.out main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o fiduccia_mattheyses.h -g
 	rm *.o
 	./main.out
 
@@ -20,7 +20,8 @@ populate_partitions: populate_partitions.c populate_partitions.h
 data_input: data_input.c data_input.h
 	gcc -c data_iput.c data_input.h
 
-
+fiduccia_mattheyses: fiduccia_mattheyses.c fiduccia_mattheyses.h
+	gcc -c fiduccia_mattheyses.c fiduccia_mattheyses.h
 
 #Debug and memory checking commands
 debug: all

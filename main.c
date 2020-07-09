@@ -5,18 +5,51 @@ An implementation of doubly-linked lists
 Jan Kowalski 3/2020
 */
 
+#define ARE_FILENAME "testdata.are"
+#define NETD_FILENAME "testdata.netD"
 
 //Keep a list of nets in cutstate
 //Balance is stored in main
 int main(){
+	printf("Compiles well\n");
+	cleaner_readin();
 	//testing_allocation();
-	test_input_functions();
+	//test_input_functions();
 	//test_doubly_linked_list();
 	return 0;
 }
 
 
+void cleaner_readin(){
+	struct cell** CELL_array;
+	struct net** NET_array;
+	struct array_metadata* sizes;
+
+	sizes = read_in_data_to_arrays(CELL_array, NET_array, ARE_FILENAME, NETD_FILENAME);
+
+	int number_of_cells = sizes->number_of_cells;
+	int number_of_nets = sizes->number_of_nets;
+	printf("Cell array size: %d\n", number_of_cells);
+	printf("Net array size: %d\n", number_of_nets);
+
+	struct net* test = NET_array[2];
+	printf("it\n");
+	struct dll* cells = test->free_cells;
+	printf("it\n");
+	struct node* first = access_next_node(cells->head);
+	printf("it\n");
+	struct cell* celly = first->data_structure;
+	printf("it\n");
+	printf("cell area %d\n", celly->area);
+	//print_cell(celly);
+	print_dll(cells, CELL);
+
+
+}
+
+
 void test_input_functions(){
+/*
 	printf("######################################\n");
 	printf("Creating CELL array\n");
 	//CELL dll is used to create CELL_array. The array is more desirable because of O(1) access
@@ -56,7 +89,7 @@ void test_input_functions(){
 	//print_dll(NET_dll, NET);
 	//printf("\n");
 	//}
-
+*/
 /*
 	printf("Attempting to delete net 2\n");
 	delete_net(NET_array[2]);
