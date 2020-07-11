@@ -81,23 +81,6 @@ void read_in_are_file(struct cell** CELL_array, char* are_filename){
 	fclose(fp);
 }
 
-//Can be tossed
-/*
-//Assumes read_in_are_file has been called
-struct cell** create_CELL_array(struct dll* CELL_dll){
-	int number_of_cells = CELL_dll->size;
-	struct cell** CELL_array = malloc(sizeof(struct cell*) * number_of_cells);
-	struct node* placeholder_node = CELL_dll->head;
-	int i;
-	for (i = 0; i < number_of_cells; i++){
-		placeholder_node = access_next_node(placeholder_node);
-		CELL_array[i] = (struct cell*) placeholder_node->data_structure;
-	}
-	return CELL_array;
-}
-*/
-
-
 
 //Returns the number of nets in the netD file
 int count_nets_in_netD_file(char* netD_filename){
@@ -134,8 +117,6 @@ void read_in_netD_file(struct cell** CELL_array, struct net** NET_array, char* n
 		second_token = strtok(NULL, " ");
 		//If the cells are part of a new list, create a new list for them
 		if (second_token != NULL && *second_token == 's'){
-			//If incubent_net only has one cell (cell-pin net), delete
-//			net_index = check_net(incubent_net, net_index);
 			//Setup new net with info
 			struct net* new_net = malloc(sizeof(new_net));
 			initialize_net(new_net, net_index);
@@ -160,41 +141,5 @@ void read_in_netD_file(struct cell** CELL_array, struct net** NET_array, char* n
 			incubent_net->number_of_cells += 1;
 		}
 	}
-	//Check whether the last net is of only one cell, delete if it is
-//	net_index = check_net(incubent_net, net_index);
 	fclose(fp);
 }
-
-//Returns the correct net_index for the new net after this function is called in read_in_netD_file
-int check_net(struct net* incubent_net, int net_index){
-	if(incubent_net != NULL && incubent_net->number_of_cells < 2){
-		//Clean up many-to-many net cell relationships
-		delete_net(incubent_net);
-		//free memory
-		free(incubent_net);
-		//replace index
-		net_index--;
-	}
-	return net_index;
-}
-
-
-
-
-//
-
-//Assumes read_in_netD_file has been called
-//struct net** create_NET_array(struct dll* NET_dll){
-//	int number_of_nets = NET_dll->size;
-//	struct net** NET_array = malloc(sizeof(struct net*) * number_of_nets);
-//	struct node* placeholder_node = NET_dll->head;
-//	int i;
-//	for (i = number_of_nets - 1; i >= 0; i--){
-//		placeholder_node = access_next_node(placeholder_node);
-//		NET_array[i] = (struct net*) placeholder_node->data_structure;
-//	}
-//	return NET_array;
-//}
-
-
-

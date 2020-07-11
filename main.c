@@ -9,15 +9,10 @@ Jan Kowalski 3/2020
 #define NETD_FILENAME "testdata.netD"
 
 
-void pop_int_array(int**);
-
-
 //Keep a list of nets in cutstate
 //Balance is stored in main
 int main(){
-	printf("Compiles well\n");
 	cleaner_readin();
-//testing_allocation();
 	//test_input_functions();
 	//test_doubly_linked_list();
 	return 0;
@@ -30,15 +25,6 @@ void cleaner_readin(){
 
 	struct cell** CELL_array = read_in_output->CELL_array;
 	struct net** NET_array = read_in_output->NET_array;
-
-
-	int number_of_cells = read_in_output->number_of_cells;
-	int number_of_nets = read_in_output->number_of_nets;
-	printf("Cell array size: %d\n", number_of_cells);
-	printf("Net array size: %d\n", number_of_nets);
-
-
-
 }
 
 
@@ -107,37 +93,7 @@ void test_input_functions(){
 
 }
 
-/*
-void pop_int_array(int** test){
-	*test = (int*) malloc(sizeof(int) * 3);
-	test[0] = 9;
-	test[1] = 3;
-	test[2] = 4;
-	printf("Testing in function: %d, %d, %d\n", test[0], test[1], test[2]);
-}
-*/
-void testing_allocation(){
-	/*
-	struct net* test = malloc(sizeof(test));
-	initialize_net(test, 0);
-	garbage_collection_dll(test->free_cells, DEALLOC_DATA);
-	garbage_collection_dll(test->locked_cells, DEALLOC_DATA);
-	free(test);
-	printf("Test freed\n");
-	*/
-//	int** test;// = malloc(sizeof(int) * 3);
-//	pop_int_array(test);
-//	printf("Testing in function: %d, %d, %d\n", test[0], test[1], test[2]);
-//	free(*test);
-	printf("hey\n");
 
-}
-
-
-
-
-//Will not work unless the print_dll function is edited to print
-// integer objects (default is cell objects)
 void test_doubly_linked_list(){
 	printf("######################################\n");
 	printf("Attempting intitialization of dll\n");
