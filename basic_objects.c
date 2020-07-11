@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "basic_objects.h"
+//#include "basic_objects.h"
 #include "dll_structure.h"
 #include "populate_partitions.h"
 
@@ -180,7 +180,7 @@ void initialize_partition(struct partition* partition){
 
 
 void populate_partitions(struct partition* partition_A, struct partition* partition_B, struct cell** CELL_array, struct dll* CELL_dll, struct dll* NET_array, double ratio, int tolerance){
-	populate_partitions_randomly();
+	populate_partitions_randomly(partition_A, partition_B, 8.0, 3);
 	//populate_partitions_largest_cell_first();
 	//populate_partitions_through_genetic_algorithm();
 	//populate_partitions_with_neural_network();

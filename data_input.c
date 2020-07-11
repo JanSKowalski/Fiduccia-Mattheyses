@@ -6,28 +6,30 @@
 
 //Takes in are and netD filenames
 //Only malloc CELL_array and NET_array in main
-struct array_metadata* read_in_data_to_arrays(struct cell** CELL_array, struct net** NET_array, char* are_filename, char* netD_filename){
+struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_filename){
 
 	//Create a record of the array sizes
-	struct array_metadata* sizes = malloc(sizeof(sizes));
+	struct array_metadata* read_in_output = malloc(sizeof(read_in_output));
 
 	//Malloc the CELL_array, using info from count_cells
 	int number_of_cells = count_cells_in_are_file(are_filename);
-	CELL_array = malloc(sizeof(struct cell*) * number_of_cells);
+	struct cell** CELL_array = malloc(sizeof(struct cell*) * number_of_cells);
 
 	//Populate the array with cell structs
 	read_in_are_file(CELL_array, are_filename);
 
 
 	int number_of_nets = count_nets_in_netD_file(netD_filename);
-	NET_array = malloc(sizeof(struct net*) * number_of_nets);
+	struct net** NET_array = malloc(sizeof(struct net*) * number_of_nets);
 
 	read_in_netD_file(CELL_array, NET_array, netD_filename);
 
 	//Store the metadata information
-	sizes->number_of_cells = number_of_cells;
-	sizes->number_of_nets = number_of_nets;
-	return sizes;
+	read_in_output->number_of_cells = number_of_cells;
+	read_in_output->number_of_nets = number_of_nets;
+	read_in_output->CELL_array = CELL_array;
+	read_in_output->NET_array = NET_array;
+	return read_in_output;
 
 }
 
@@ -133,7 +135,7 @@ void read_in_netD_file(struct cell** CELL_array, struct net** NET_array, char* n
 		//If the cells are part of a new list, create a new list for them
 		if (second_token != NULL && *second_token == 's'){
 			//If incubent_net only has one cell (cell-pin net), delete
-			net_index = check_net(incubent_net, net_index);
+//			net_index = check_net(incubent_net, net_index);
 			//Setup new net with info
 			struct net* new_net = malloc(sizeof(new_net));
 			initialize_net(new_net, net_index);
@@ -150,9 +152,6 @@ void read_in_netD_file(struct cell** CELL_array, struct net** NET_array, char* n
 			//Transfer string to integer
 			int cell_identifier = atoi(first_token);
 			struct cell* accessed_cell = CELL_array[cell_identifier];
-			printf("cell num: %d\n", accessed_cell->identifier);
-
-
 			//Add cell to the first position in the net's cell list (O(1) operation)
 			insert_node(incubent_net->free_cells, 0, accessed_cell);
 			//Add net to the first position in the cell's netlist
@@ -162,7 +161,7 @@ void read_in_netD_file(struct cell** CELL_array, struct net** NET_array, char* n
 		}
 	}
 	//Check whether the last net is of only one cell, delete if it is
-	net_index = check_net(incubent_net, net_index);
+//	net_index = check_net(incubent_net, net_index);
 	fclose(fp);
 }
 
@@ -172,9 +171,7 @@ int check_net(struct net* incubent_net, int net_index){
 		//Clean up many-to-many net cell relationships
 		delete_net(incubent_net);
 		//free memory
-//				free(incubent_net);
-		//Remove from NET_dll
-		//remove_node_using_list(NET_dll, 0);
+		free(incubent_net);
 		//replace index
 		net_index--;
 	}
