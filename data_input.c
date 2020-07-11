@@ -15,10 +15,11 @@ struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_fil
 	int number_of_cells = count_cells_in_are_file(are_filename);
 	struct cell** CELL_array = malloc(sizeof(struct cell*) * number_of_cells);
 
+	struct are_metadata* are_output = read_in_are_file(CELL_array, are_filename);
+	int tolerance = are_output->tolerance;
+	int total_area = are_output->total_area;
+
 	//Populate the array with cell structs
-	read_in_are_file(CELL_array, are_filename);
-
-
 	int number_of_nets = count_nets_in_netD_file(netD_filename);
 	struct net** NET_array = malloc(sizeof(struct net*) * number_of_nets);
 
@@ -29,6 +30,8 @@ struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_fil
 	read_in_output->number_of_nets = number_of_nets;
 	read_in_output->CELL_array = CELL_array;
 	read_in_output->NET_array = NET_array;
+	read_in_output->tolerance = tolerance;
+	read_in_output->total_area = total_area;
 	return read_in_output;
 
 }
@@ -50,13 +53,17 @@ int count_cells_in_are_file(char* are_filename){
 
 
 
-
-void read_in_are_file(struct cell** CELL_array, char* are_filename){
+//are_metadata mallec'ed
+struct are_metadata* read_in_are_file(struct cell** CELL_array, char* are_filename){
 	FILE *fp;
 	char line[256];
 	fp = fopen(are_filename, "r");
+	struct are_metadata* output = malloc(sizeof(output));
 	//Each cell struct gets a unique identifier
 	int index = 0;
+	//Keep track of the largest cell, as it will be the tolerance for partitioning
+	int total_area = 0;
+	int largest_cell_area = 0;
 	//loop through lines, malloc cells as they appear in the .are file
 	while (fgets(line, sizeof(line), fp)){
 		//    a (for cell) / p (for pin)
@@ -66,19 +73,25 @@ void read_in_are_file(struct cell** CELL_array, char* are_filename){
 			token = strtok(NULL, " ");
 			//Create cell, set index
 			struct cell* new_cell = malloc(sizeof(*new_cell));
+			int cell_area = atoi(token);
+			//Add cell area to total_area
+			total_area += cell_area;
 			//Set the index and area information
-			initialize_cell(new_cell, index, atoi(token));
+			initialize_cell(new_cell, index, cell_area);
+			//Check for largest cell
+			if (cell_area > largest_cell_area){
+				largest_cell_area = cell_area;
+			}
 			//Add to CELL_array
 			CELL_array[index] = new_cell;
-
-			//insert_node(CELL_dll, identifier_index, new_cell);
-
-
 			//Prepare for next cell
 			index++;
 		}
 	}
 	fclose(fp);
+	output->tolerance = largest_cell_area;
+	output->total_area = total_area;
+	return output;
 }
 
 

@@ -170,19 +170,39 @@ void delete_net_helper(struct net* undesired_net, struct dll* cellist, struct no
 
 //############################################################
 
+
+//Two partitions and a metadata struct get malloc'ed
+struct partition_metadata* initialize_two_partitions(){
+	struct partition* A = malloc(sizeof(A));
+	initialize_partition(A);
+	struct partition* B = malloc(sizeof(B));
+	initialize_partition(B);
+
+	struct partition_metadata* output = malloc(sizeof(output));
+	output->partition_A = A;
+	output->partition_B = B;
+	return output;
+}
+
 void initialize_partition(struct partition* partition){
-	partition->max_gain=0;
+	//Create main gain dll
 	struct dll* cells_sorted_by_gain = malloc(sizeof(cells_sorted_by_gain));
+	initialize_dll(cells_sorted_by_gain);
 	partition->cells_sorted_by_gain=cells_sorted_by_gain;
+	//Create list of cells
+	struct dll* cells_in_partition = malloc(sizeof(cells_in_partition));
+	initialize_dll(cells_in_partition);
+	partition->cells_in_partition = cells_in_partition;
 	//Partition starts with 0 cell area
 	partition->total_cell_area=0;
+	partition->max_gain=0;
+
 }
 
 
-void populate_partitions(struct partition* partition_A, struct partition* partition_B, struct cell** CELL_array, struct dll* CELL_dll, struct dll* NET_array, double ratio, int tolerance){
-	populate_partitions_randomly(CELL_array, partition_A, partition_B, 8.0, 3);
+void populate_partitions(struct partition* partition_A, struct partition* partition_B, struct cell** CELL_array, int CELL_array_size, int desired_area, int tolerance){
+	populate_partitions_randomly(CELL_array, CELL_array_size, partition_A, partition_B, desired_area, tolerance);
 	//populate_partitions_largest_cell_first();
 	//populate_partitions_through_genetic_algorithm();
 	//populate_partitions_with_neural_network();
-	int i = 0;
 }

@@ -19,6 +19,7 @@ Initialize a doubly linked list
 Inputs: list
 	list - a malloc'd pointer to a dll struct
 Outputs: <none>
+NOTE: Assumes the list has been malloc'ed
 */
 void initialize_dll(struct dll* list){
 
