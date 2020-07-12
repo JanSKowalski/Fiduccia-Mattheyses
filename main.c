@@ -6,11 +6,11 @@ Jan Kowalski 3/2020
 */
 
 //Toy files
-#define ARE_FILENAME "testdata.are"
-#define NETD_FILENAME "testdata.netD"
+//#define ARE_FILENAME "testdata.are"
+//#define NETD_FILENAME "testdata.netD"
 //The first testset
-//#define ARE_FILENAME "ibm01.are"
-//#define NETD_FILENAME "ibm01.netD"
+#define ARE_FILENAME "ibm01.are"
+#define NETD_FILENAME "ibm01.netD"
 
 //Ratio is a double between 0<r<1
 #define RATIO 0.5
@@ -29,7 +29,7 @@ int main(){
 	printf("Desired area: %d\n", desired_area);
 
 	struct partition_metadata* partitions = initialize_two_partitions();
-	populate_partitions(partitions->partition_A, partitions->partition_B, CELL_array, input_data->number_of_cells, desired_area, input_data->tolerance);
+	populate_partitions(partitions->partition_A, partitions->partition_B, NET_array, input_data->number_of_nets, CELL_array, input_data->number_of_cells, RATIO, desired_area, input_data->tolerance);
 
 	//test_input_functions();
 	//test_doubly_linked_list();

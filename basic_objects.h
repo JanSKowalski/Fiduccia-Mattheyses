@@ -26,7 +26,7 @@ struct partition{
 	struct node* max_gain;
 	struct dll* cells_sorted_by_gain;
 	struct dll* cells_in_partition;
-	int total_cell_area;
+	int total_partition_area;
 };
 
 struct partition_metadata{
@@ -49,4 +49,4 @@ void print_net(struct net*);
 
 struct partition_metadata* initialize_two_partitions();
 void initialize_partition(struct partition*);
-void populate_partitions(struct partition*, struct partition*, struct cell**, int, int, int);
+void populate_partitions(struct partition*, struct partition*, struct net**, int, struct cell**, int, double, int, int);
