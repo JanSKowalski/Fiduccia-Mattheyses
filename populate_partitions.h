@@ -11,3 +11,4 @@ void segregate_cells_through_genetic_algorithm();
 void segregate_cells_with_neural_network();
 
 void copy_cells_into_partitions(struct partition*, struct partition*, struct dll*, struct dll*, int, int);
+void check_cutstate();

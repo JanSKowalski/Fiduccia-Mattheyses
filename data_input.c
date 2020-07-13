@@ -6,10 +6,7 @@
 
 //Takes in are and netD filenames
 //Only malloc CELL_array and NET_array in main
-struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_filename){
-
-	//Create a record of the array sizes
-	struct array_metadata* read_in_output = malloc(sizeof(read_in_output));
+struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_filename){ //, struct cell** CELL_array, struct net** NET_array){
 
 	//Malloc the CELL_array, using info from count_cells
 	int number_of_cells = count_cells_in_are_file(are_filename);
@@ -18,12 +15,18 @@ struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_fil
 	struct are_metadata* are_output = read_in_are_file(CELL_array, are_filename);
 	int tolerance = are_output->tolerance;
 	int total_area = are_output->total_area;
+	//struct no longer needed
+	free(are_output);
 
 	//Populate the array with cell structs
 	int number_of_nets = count_nets_in_netD_file(netD_filename);
 	struct net** NET_array = malloc(sizeof(struct net*) * number_of_nets);
 
 	read_in_netD_file(CELL_array, NET_array, netD_filename);
+
+	//Create a record of the array sizes
+	struct array_metadata* read_in_output = malloc(sizeof(read_in_output));
+
 
 	//Store the metadata information
 	read_in_output->number_of_cells = number_of_cells;
@@ -32,6 +35,9 @@ struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_fil
 	read_in_output->NET_array = NET_array;
 	read_in_output->tolerance = tolerance;
 	read_in_output->total_area = total_area;
+
+	free(read_in_output);
+	printf("Compiled\n");
 	return read_in_output;
 
 }
@@ -48,6 +54,8 @@ int count_cells_in_are_file(char* are_filename){
 			counter++;
 		}
 	}
+// Not sure why this fclose causes an error
+//	fclose(fp);
 	return counter;
 }
 
@@ -111,7 +119,9 @@ int count_nets_in_netD_file(char* netD_filename){
 			counter++;
 		}
 	}
+	fclose(fp);
 	return counter;
+
 }
 
 

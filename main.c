@@ -6,11 +6,11 @@ Jan Kowalski 3/2020
 */
 
 //Toy files
-//#define ARE_FILENAME "testdata.are"
-//#define NETD_FILENAME "testdata.netD"
+#define ARE_FILENAME "testdata.are"
+#define NETD_FILENAME "testdata.netD"
 //The first testset
-#define ARE_FILENAME "ibm01.are"
-#define NETD_FILENAME "ibm01.netD"
+//#define ARE_FILENAME "ibm01.are"
+//#define NETD_FILENAME "ibm01.netD"
 
 //Ratio is a double between 0<r<1
 #define RATIO 0.5
@@ -19,7 +19,7 @@ Jan Kowalski 3/2020
 //Balance is stored in main
 int main(){
 
-
+/*
 	struct array_metadata* input_data = read_in_data_to_arrays(ARE_FILENAME, NETD_FILENAME);
 	struct cell** CELL_array = input_data->CELL_array;
 	struct net** NET_array = input_data->NET_array;
@@ -30,8 +30,8 @@ int main(){
 
 	struct partition_metadata* partitions = initialize_two_partitions();
 	populate_partitions(partitions->partition_A, partitions->partition_B, NET_array, input_data->number_of_nets, CELL_array, input_data->number_of_cells, RATIO, desired_area, input_data->tolerance);
-
-	//test_input_functions();
+*/
+	test_input_functions();
 	//test_doubly_linked_list();
 	return 0;
 }
@@ -39,35 +39,27 @@ int main(){
 
 void test_input_functions(){
 
-
+	//Read-in data
 	struct array_metadata* input_data = read_in_data_to_arrays(ARE_FILENAME, NETD_FILENAME);
+
 	struct cell** CELL_array = input_data->CELL_array;
 	struct net** NET_array = input_data->NET_array;
 
 
+	//Test deallocation with valgrind
+	int number_of_nets = input_data->number_of_nets;
+	int number_of_cells = input_data->number_of_cells;
+	int i;
 
-	//Create print_NET_array() and print_CELL_array() functions;
-
-/*
-	printf("Attempting to delete net 2\n");
-	delete_net(NET_array[2]);
-	remove_node_using_list(NET_dll, 0);
-	printf("Net 2 deleted\n");
-
-	printf("\n");
-	print_dll(NET_dll, NET);
-*/
-	//Free references to Nets in NET_array
-	//int size = NET_dll->size;
-	//for (i = 0; i < size; i++){
-	//	free(NET_array[i]);
-	//}
-
-	//printf("Attempt to dealloc net\n");
-	//free(NET_array
-	//garbage_collection_dll(NET_array, DEALLOC_DATA);
-	//If you delete the cells, they can't be accessed. Always put gc at the end, don't be clever.
-	//garbage_collection_dll(CELL_dll);
+	for (i = 0; i< number_of_nets; i++){
+		delete_net(NET_array[i]);
+	}
+	free(NET_array);
+	for (i = 0; i< number_of_cells; i++){
+		delete_cell(CELL_array[i]);
+	}
+	free(CELL_array);
+//	free(input_data);
 
 }
 

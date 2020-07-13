@@ -67,7 +67,7 @@ void print_cell_area(struct cell* object){
 
 //This might cause issues, if you deallocate all the nets in this cell, and then another cell tries to access that deallocated net.
 //This is a many-to-many
-void garbage_collection_cell(struct cell* cell){
+void delete_cell(struct cell* cell){
 	garbage_collection_dll(cell->nets, DEALLOC_DATA);
 	free(cell);
 }
@@ -209,4 +209,7 @@ void populate_partitions(struct partition* partition_A, struct partition* partit
 
 	//Copy these cell lists into the appropriate partition, determine cutset
 	//copy_cells_into_partitions(NET_array, partition_A, partition_B, determined->list_of_cells_for_A, determined->list_of_cells_for_B);
+
+	//Generate cutstate list
+	//check_cutstate
 }

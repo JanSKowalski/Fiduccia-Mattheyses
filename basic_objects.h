@@ -39,6 +39,7 @@ void initialize_integer(struct integer*, int);
 void print_integer(struct integer*);
 
 void initialize_cell(struct cell*, int, int);
+void delete_cell(struct cell*);
 void print_cell(struct cell*);
 void print_cell_area(struct cell*);
 
