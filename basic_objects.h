@@ -17,6 +17,7 @@ struct net{
 	int identifier;
 	struct dll* free_cells;
 	struct dll* locked_cells;
+
 //This causes errors, for some reason
 //	int number_cells_in_partition_B;
 //	int number_cells_in_partition_A;

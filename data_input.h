@@ -2,12 +2,15 @@
 #include "basic_objects.h"
 
 struct array_metadata{
-	struct cell** CELL_array;
-	int number_of_cells;
-	struct net** NET_array;
-	int number_of_nets;
-	int total_area;
 	int tolerance;
+	int total_area;
+	int number_of_cells;
+	int number_of_nets;
+	struct net** NET_array;
+	//For some reason, the struct fails to free unless this dummy_variable is not assigned a value
+	//  I believe this is true because it follows the struct net**, although I don't know why
+	int dummy_variable;
+	struct cell** CELL_array;
 };
 
 struct are_metadata{

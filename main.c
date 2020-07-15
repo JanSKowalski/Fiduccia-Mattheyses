@@ -46,6 +46,8 @@ void test_input_functions(){
 	struct net** NET_array = input_data->NET_array;
 
 
+
+
 	//Test deallocation with valgrind
 	int number_of_nets = input_data->number_of_nets;
 	int number_of_cells = input_data->number_of_cells;
@@ -58,8 +60,11 @@ void test_input_functions(){
 	for (i = 0; i< number_of_cells; i++){
 		delete_cell(CELL_array[i]);
 	}
+
 	free(CELL_array);
-//	free(input_data);
+	free(NET_array);
+
+	free(input_data);
 
 }
 

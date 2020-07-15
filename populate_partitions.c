@@ -87,7 +87,7 @@ void copy_cells_into_partitions(struct partition* partition_A, struct partition*
 	temp_node = list_of_cells_A->head;
 	temp_node = temp_node->next;
 	while (temp_node != list_of_cells_A->tail){
-	
+
 	}
 */
 	partition_B->cells_in_partition = list_of_cells_B;
