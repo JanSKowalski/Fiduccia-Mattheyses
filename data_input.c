@@ -52,8 +52,7 @@ int count_cells_in_are_file(char* are_filename){
 			counter++;
 		}
 	}
-// Not sure why this fclose causes an error
-//	fclose(fp);
+	fclose(fp);
 	return counter;
 }
 
