@@ -10,7 +10,15 @@ struct cell{
 	int area; //Detailed in .are file
 	int free_cell; //Initially true (1)
 };
-
+/*
+struct other_cell{
+	int identifier; //Decided by the order that cells are read in from input .are file
+	int gain; //Initially 0
+	int partition; //Partition A:1, Partition B:2, Unassigned:0
+	int area; //Detailed in .are file
+	struct dll* nets;
+};
+*/
 
 struct net{
 	int number_of_cells;

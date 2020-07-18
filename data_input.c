@@ -11,14 +11,15 @@ struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_fil
 	//Malloc the CELL_array, using info from count_cells
 	int number_of_cells = count_cells_in_are_file(are_filename);
 	//This is an appropriate use of calloc (malloc seems to produce errors)
-	struct cell** CELL_array = calloc(number_of_cells, sizeof(struct cell*));
+	struct cell** CELL_array = (struct cell**) calloc(number_of_cells, sizeof(struct cell*));
 
 
 	struct are_metadata* are_output = read_in_are_file(CELL_array, are_filename);
 	int tolerance = are_output->tolerance;
 	int total_area = are_output->total_area;
-	//struct no longer needed
+	//struct no longer needed, free
 	free(are_output);
+
 
 	//Populate the array with cell structs
 	int number_of_nets = count_nets_in_netD_file(netD_filename);
@@ -27,7 +28,7 @@ struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_fil
 	read_in_netD_file(CELL_array, NET_array, netD_filename);
 
 	//Create a record of the array sizes
-	struct array_metadata* read_in_output = malloc(sizeof(read_in_output));
+	struct array_metadata* read_in_output = malloc(sizeof(struct array_metadata));
 
 	//Store the metadata information
 	read_in_output->number_of_cells = number_of_cells;
@@ -36,6 +37,7 @@ struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_fil
 	read_in_output->NET_array = NET_array;
 	read_in_output->tolerance = tolerance;
 	read_in_output->total_area = total_area;
+
 	return read_in_output;
 
 }
@@ -63,12 +65,13 @@ struct are_metadata* read_in_are_file(struct cell** CELL_array, char* are_filena
 	FILE *fp;
 	char line[256];
 	fp = fopen(are_filename, "r");
-	struct are_metadata* output = malloc(sizeof(output));
+	struct are_metadata* output = malloc(sizeof(struct are_metadata));
 	//Each cell struct gets a unique identifier
 	int index = 0;
 	//Keep track of the largest cell, as it will be the tolerance for partitioning
 	int total_area = 0;
 	int largest_cell_area = 0;
+	struct cell* new_cell;
 	//loop through lines, malloc cells as they appear in the .are file
 	while (fgets(line, sizeof(line), fp)){
 		//    a (for cell) / p (for pin)
@@ -77,7 +80,7 @@ struct are_metadata* read_in_are_file(struct cell** CELL_array, char* are_filena
 			char* token = strtok(line, " ");
 			token = strtok(NULL, " ");
 			//Create cell, set index
-			struct cell* new_cell = malloc(sizeof(*new_cell));
+			new_cell = (struct cell*) malloc(sizeof(struct cell));
 			int cell_area = atoi(token);
 			//Add cell area to total_area
 			total_area += cell_area;
@@ -138,7 +141,7 @@ void read_in_netD_file(struct cell** CELL_array, struct net** NET_array, char* n
 		//If the cells are part of a new list, create a new list for them
 		if (second_token != NULL && *second_token == 's'){
 			//Setup new net with info
-			struct net* new_net = malloc(sizeof(new_net));
+			struct net* new_net = malloc(sizeof(struct net));
 			initialize_net(new_net, net_index);
 			NET_array[net_index] = new_net;
 			incubent_net = new_net;

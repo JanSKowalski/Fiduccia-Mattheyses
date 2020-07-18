@@ -28,14 +28,12 @@ void print_integer(struct integer* object){
 void initialize_cell(struct cell* new_cell, int identifier, int area){
 	new_cell->identifier = identifier;
 	new_cell->area = area;
-
-	struct dll* nets = malloc(sizeof(nets));
+	struct dll* nets = (struct dll*) malloc(sizeof(struct dll));
 	initialize_dll(nets);
 	new_cell->nets = nets;
 
 	new_cell->partition = 0;
 	new_cell->gain = 0;
-	new_cell->free_cell = 1;
 }
 
 //To find number of pins, call size_dll(cell->nets)
@@ -65,10 +63,9 @@ void print_cell_area(struct cell* object){
 //Need to demalloc nets dll, then cell struct
 
 
-//This might cause issues, if you deallocate all the nets in this cell, and then another cell tries to access that deallocated net.
 //This is a many-to-many
 void delete_cell(struct cell* cell){
-	garbage_collection_dll(cell->nets, DEALLOC_DATA);
+	garbage_collection_dll(cell->nets, DO_NOT_DEALLOC_DATA);
 	free(cell);
 }
 
@@ -81,11 +78,11 @@ void delete_cell(struct cell* cell){
 void initialize_net(struct net* net, int identifier){
 	net->identifier = identifier;
 
-	struct dll* free_cells = malloc(sizeof(free_cells));
+	struct dll* free_cells = malloc(sizeof(struct dll));
 	initialize_dll(free_cells);
 	net->free_cells = free_cells;
 
-	struct dll* locked_cells = malloc(sizeof(locked_cells));
+	struct dll* locked_cells = malloc(sizeof(struct dll));
 	initialize_dll(locked_cells);
 	net->locked_cells = locked_cells;
 
@@ -123,6 +120,7 @@ void delete_net(struct net* undesired_net){
 	delete_net_helper(undesired_net, locked_cells, temp_node_for_cell);
 	garbage_collection_dll(undesired_net->locked_cells, DO_NOT_DEALLOC_DATA);
 
+	free(undesired_net);
 }
 
 
@@ -135,8 +133,6 @@ void delete_net_helper(struct net* undesired_net, struct dll* cellist, struct no
 	struct node* temp_node_for_net;
 	//temp_net for checking whether the net is in the netlist to be deleted
 	struct net* temp_net;
-	//
-
 
 	//Remove references to the net from every cell's netlist
 	while (temp_node_for_cell != cellist->tail){
@@ -159,13 +155,8 @@ void delete_net_helper(struct net* undesired_net, struct dll* cellist, struct no
 		}
 		//Move to next
 		temp_node_for_cell = temp_node_for_cell->next;
-
 		//print_dll(temp_cell_netlist, NET);
-
 	}
-
-
-
 }
 
 //############################################################
@@ -173,12 +164,12 @@ void delete_net_helper(struct net* undesired_net, struct dll* cellist, struct no
 
 //Two partitions and a metadata struct get malloc'ed
 struct partition_metadata* initialize_two_partitions(){
-	struct partition* A = malloc(sizeof(A));
+	struct partition* A = malloc(sizeof(struct partition));
 	initialize_partition(A);
-	struct partition* B = malloc(sizeof(B));
+	struct partition* B = malloc(sizeof(struct partition));
 	initialize_partition(B);
 
-	struct partition_metadata* output = malloc(sizeof(output));
+	struct partition_metadata* output = malloc(sizeof(struct partition_metadata));
 	output->partition_A = A;
 	output->partition_B = B;
 	return output;
@@ -186,11 +177,11 @@ struct partition_metadata* initialize_two_partitions(){
 
 void initialize_partition(struct partition* partition){
 	//Create main gain dll
-	struct dll* cells_sorted_by_gain = malloc(sizeof(cells_sorted_by_gain));
+	struct dll* cells_sorted_by_gain = malloc(sizeof(struct dll));
 	initialize_dll(cells_sorted_by_gain);
 	partition->cells_sorted_by_gain=cells_sorted_by_gain;
 	//Create list of cells
-	struct dll* cells_in_partition = malloc(sizeof(cells_in_partition));
+	struct dll* cells_in_partition = malloc(sizeof(struct dll));
 	initialize_dll(cells_in_partition);
 	partition->cells_in_partition = cells_in_partition;
 	//Partition starts with 0 cell area

@@ -22,9 +22,8 @@ Outputs: <none>
 NOTE: Assumes the list has been malloc'ed
 */
 void initialize_dll(struct dll* list){
-
-	struct node* head_sentinel = malloc(sizeof(*head_sentinel));
-	struct node* tail_sentinel = malloc(sizeof(*tail_sentinel));
+	struct node* head_sentinel = malloc(sizeof(struct node));
+	struct node* tail_sentinel = malloc(sizeof(struct node));
 
 	list->size = 0;
 	list->head = head_sentinel;
@@ -90,7 +89,7 @@ void insert_node(struct dll* list, int position, void* data_structure){
 	}
 
 	//initialize new node
-	struct node* new_node = malloc(sizeof(*new_node));
+	struct node* new_node = (struct node*) malloc(sizeof(struct node));
 
 	//link data_structure to node
 	new_node->data_structure = data_structure;
@@ -157,7 +156,7 @@ void remove_node_using_list(struct dll* list, int position){
 //UPDATE DLL_SIZE WHEN YOU USE THIS FUNCTION!!!!!!!!
 struct node* remove_node(struct node* node_being_removed, struct dll* list){
 	connect_two_nodes(node_being_removed->previous, node_being_removed->next);
-	list->size -= 1;
+	list->size = list->size - 1;
 	return node_being_removed;
 }
 
