@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-//#include "dll_structure.h"
-//#include "basic_objects.h"
 #include "data_input.h"
 
 struct everything_important{
@@ -11,6 +9,5 @@ struct everything_important{
 	struct partition* partition_B;
 };
 
+void free_all_memory(struct array_metadata*, struct cell**, struct net**);
 
-void test_doubly_linked_list();
-void test_input_functions();

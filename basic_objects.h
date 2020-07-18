@@ -10,15 +10,6 @@ struct cell{
 	int area; //Detailed in .are file
 	int free_cell; //Initially true (1)
 };
-/*
-struct other_cell{
-	int identifier; //Decided by the order that cells are read in from input .are file
-	int gain; //Initially 0
-	int partition; //Partition A:1, Partition B:2, Unassigned:0
-	int area; //Detailed in .are file
-	struct dll* nets;
-};
-*/
 
 struct net{
 	int number_of_cells;
@@ -48,11 +39,13 @@ void initialize_integer(struct integer*, int);
 void print_integer(struct integer*);
 
 void initialize_cell(struct cell*, int, int);
+//Cells should be deleted after nets by going through CELL_array
 void delete_cell(struct cell*);
 void print_cell(struct cell*);
 void print_cell_area(struct cell*);
 
 void initialize_net(struct net*, int);
+//Nets should be deleted first by going through NET_array
 void delete_net(struct net*);
 void delete_net_helper(struct net*, struct dll*, struct node*);
 void print_net(struct net*);
