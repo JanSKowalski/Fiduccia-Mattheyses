@@ -16,14 +16,12 @@ struct net{
 	int identifier;
 	struct dll* free_cells;
 	struct dll* locked_cells;
-
-//This causes errors, for some reason
-//	int number_cells_in_partition_B;
-//	int number_cells_in_partition_A;
+	int num_cells_in_partition_A;
+	int num_cells_in_partition_B;
 };
 
 struct partition{
-	struct node* max_gain;
+	struct node* max_gain_pointer;
 	struct dll* cells_sorted_by_gain;
 	struct dll* cells_in_partition;
 	int total_partition_area;
@@ -53,3 +51,4 @@ void print_net(struct net*);
 struct partition_metadata* initialize_two_partitions();
 void initialize_partition(struct partition*);
 void populate_partitions(struct partition*, struct partition*, struct net**, int, struct cell**, int, double, int, int);
+void delete_partition(struct partition*);

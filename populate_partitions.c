@@ -25,8 +25,8 @@ void segregate_cells_randomly(struct cell** CELL_array, int CELL_array_size, str
 
 	//Loop until acceptable balance is found
 	while(1){
-		list_of_cells_A = malloc(sizeof(list_of_cells_A));
-		list_of_cells_B = malloc(sizeof(list_of_cells_B));
+		list_of_cells_A = malloc(sizeof(struct dll));
+		list_of_cells_B = malloc(sizeof(struct dll));
 
 		//Seed random for different results (adding rand() prevents the seed from being reused in short time intervals)
 		srand(time(NULL)+rand());
@@ -69,10 +69,13 @@ void segregate_cells_randomly(struct cell** CELL_array, int CELL_array_size, str
 	}
 
 
-	//printf("Partition A total area: %d\n", total_partition_area_A);
-	//printf("Partition B total area: %d\n", total_partition_area_B);
+	printf("Partition A total area: %d\n", total_partition_area_A);
+	printf("Partition B total area: %d\n", total_partition_area_B);
 
 	copy_cells_into_partitions(partition_A, partition_B, list_of_cells_A, list_of_cells_B, total_partition_area_A, total_partition_area_B);
+
+	free(list_of_cells_A);
+	free(list_of_cells_B);
 }
 
 //Add cells, return dll of cutstate nets
@@ -81,26 +84,67 @@ void copy_cells_into_partitions(struct partition* partition_A, struct partition*
 	partition_A->cells_in_partition = list_of_cells_A;
 	partition_A->total_partition_area = total_partition_area_A;
 
-/*
+
 	//Go through each cell. Each cell has a list of nets. Go through each net. Add 1 to the number_cells_in_partition_X;
 	struct node* temp_node;
-	temp_node = list_of_cells_A->head;
-	temp_node = temp_node->next;
-	while (temp_node != list_of_cells_A->tail){
+	struct cell* temp_cell;
 
+	//Access the first data node
+	temp_node = ((struct node*) list_of_cells_A->head)->next;
+	//Go through list of cells
+	while (temp_node != list_of_cells_A->tail){
+		temp_cell = temp_node->data_structure;
+		//Add cell to partition
+		insert_node(partition_A->cells_in_partition, 0, temp_cell);
+		update_net_partition_count(temp_cell, PARTITION_A);
+		//Move to next cell
+		temp_node = temp_node->next;
 	}
-*/
+
 	partition_B->cells_in_partition = list_of_cells_B;
 	partition_B->total_partition_area = total_partition_area_B;
 
+	//Access the first data node
+	temp_node = ((struct node*) list_of_cells_B->head)->next;
+	//Go through list of cells
+	while (temp_node != list_of_cells_B->tail){
+		temp_cell = temp_node->data_structure;
+		//Add cell to partition
+		insert_node(partition_B->cells_in_partition, 0, temp_cell);
+		update_net_partition_count(temp_cell, PARTITION_B);
+		//Move to next cell
+		temp_node = temp_node->next;
+	}
+
+}
+
+void update_net_partition_count(struct cell* assigned_cell, partition_type partition){
+		struct dll* netlist = assigned_cell->nets;
+		struct node* temp_net_node = ((struct node*) netlist->head)->next;
+		struct net* temp_net;
+		while (temp_net_node != netlist->tail){
+			temp_net = temp_net_node->data_structure;
+			if (partition == PARTITION_A)
+				temp_net->num_cells_in_partition_A += 1;
+			else
+				temp_net->num_cells_in_partition_B += 1;
+			//Move to next net
+			temp_net_node = temp_net_node->next;
+		}
 }
 
 
+void check_cutstate(struct net** NET_array, int NET_array_size){
+	//Go through each net in NET_array, check to see if net has at least one cell in each
 
-
-void check_cutstate(){
-	//Go through each net in NET_array, check to see if net has at least one cell in each 
-
-	struct dll* cutstate_nets = malloc(sizeof(cutstate_nets));
-
+//	struct dll* cutstate_nets = malloc(sizeof(struct dll));
+	struct net* temp_net;
+	int cutstate_count = 0;
+	int i;
+	for( i = 0; i < NET_array_size; i++){
+		temp_net = NET_array[i];
+		if ((temp_net->num_cells_in_partition_A > 0) && (temp_net->num_cells_in_partition_B > 0))
+			cutstate_count++;
+	}
+	printf("Cutstate number: %d\n", cutstate_count);
 }

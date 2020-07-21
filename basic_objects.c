@@ -186,21 +186,39 @@ void initialize_partition(struct partition* partition){
 	partition->cells_in_partition = cells_in_partition;
 	//Partition starts with 0 cell area
 	partition->total_partition_area=0;
-	partition->max_gain=0;
+	//Set the pointer to null (consider making the partition gain array set, rather than dynamic)
+	partition->max_gain_pointer=NULL;
 
 }
 
 
 void populate_partitions(struct partition* partition_A, struct partition* partition_B, struct net** NET_array, int NET_array_size, struct cell** CELL_array, int CELL_array_size, double ratio, int desired_area, int tolerance){
 //	struct cell_assignments* determined;
+
+	//This should be decided with an enum from the main file
 	segregate_cells_randomly(CELL_array, CELL_array_size, partition_A, partition_B, ratio, desired_area, tolerance);
 	//determined = divide_cells_largest_cell_first();
 	//determined = divide_cells_through_genetic_algorithm();
 	//determined = divide_cells_with_neural_network();
 
-	//Copy these cell lists into the appropriate partition, determine cutset
-	//copy_cells_into_partitions(NET_array, partition_A, partition_B, determined->list_of_cells_for_A, determined->list_of_cells_for_B);
 
 	//Generate cutstate list
-	//check_cutstate
+	check_cutstate(NET_array, NET_array_size);
+
+	printf("\n\n");
+/*
+	int i;
+	for (i = 0; i< NET_array_size; i++){
+		printf("Cells in partition A: %d\n", NET_array[i]->num_cells_in_partition_A);
+		printf("Cells in partition B: %d\n", NET_array[i]->num_cells_in_partition_B);
+	}
+*/
+}
+
+void delete_partition(struct partition* undesired_partition){
+	//cells sorted by gain will be tricky because each element will be a dll in its own right
+//	garbage_collection_dll(undesired_partition->cells_sorted_by_gain, 
+	//Straight list of cells
+	garbage_collection_dll(undesired_partition->cells_in_partition, DO_NOT_DEALLOC_DATA);
+	
 }

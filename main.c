@@ -2,7 +2,7 @@
 #include "main.h"
 
 /*
-An implementation of doubly-linked lists
+An implementation of the Fiduccia-Mettheyses partitioning algorithm
 Jan Kowalski 3/2020
 */
 
@@ -29,8 +29,8 @@ int main(){
 	int desired_area = (int) (RATIO * input_data->total_area);
 	printf("Desired area: %d\n", desired_area);
 
-//	struct partition_metadata* partitions = initialize_two_partitions();
-//	populate_partitions(partitions->partition_A, partitions->partition_B, NET_array, input_data->number_of_nets, CELL_array, input_data->number_of_cells, RATIO, desired_area, input_data->tolerance);
+	struct partition_metadata* partitions = initialize_two_partitions();
+	populate_partitions(partitions->partition_A, partitions->partition_B, NET_array, input_data->number_of_nets, CELL_array, input_data->number_of_cells, RATIO, desired_area, input_data->tolerance);
 
 	free_all_memory(input_data, CELL_array, NET_array);
 	return 0;
