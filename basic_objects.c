@@ -209,7 +209,7 @@ void initialize_partition(struct partition* partition, int max_nets){
 	partition->cells_in_partition = cells_in_partition;
 	//Partition starts with 0 cell area
 	partition->total_partition_area=0;
-	//Set the pointer to null (consider making the partition gain array set, rather than dynamic)
+	//Set the pointer to null
 	partition->max_gain_pointer=NULL;
 
 }
@@ -228,8 +228,7 @@ void populate_partitions(struct condensed* information){
 	//Generate cutstate list
 	check_cutstate(information->NET_array, information->NET_array_size);
 
-	printf("\n\n");
-	printf("Num cells in A: %d\n", information->partition_A->cells_in_partition->size);
+	printf("\n");
 /*
 	int i;
 	for (i = 0; i< information->NET_array_size; i++){
@@ -239,6 +238,8 @@ void populate_partitions(struct condensed* information){
 */
 }
 
+
+//Not complete
 void delete_partition(struct partition* undesired_partition){
 	//cells sorted by gain will be tricky because each element will be a dll in its own right
 //	garbage_collection_dll(undesired_partition->cells_sorted_by_gain, 

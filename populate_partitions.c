@@ -51,15 +51,15 @@ void segregate_cells_randomly(struct condensed* information){
 		}
 
 
-		printf("Area: %d\n", total_partition_area_A);
+//		printf("Area: %d\n", total_partition_area_A);
 
-		printf("Tolerance: %d\n", information->tolerance);
+//		printf("Tolerance: %d\n", information->tolerance);
 
 
 		//If the partition is within tolerance, break the loop and save to partition structs
 		//Otherwise free dlls and try again.
 		if (total_partition_area_A < (information->desired_area + information->tolerance) && total_partition_area_A > (information->desired_area - information->tolerance)){
-			printf("Balance achieved!\n");
+//			printf("Balance achieved!\n");
 			break;
 		}
 
@@ -72,25 +72,22 @@ void segregate_cells_randomly(struct condensed* information){
 	}
 
 
-	printf("Partition A total area: %d\n", total_partition_area_A);
-	printf("Partition B total area: %d\n", total_partition_area_B);
+//	printf("Partition A total area: %d\n", total_partition_area_A);
+//	printf("Partition B total area: %d\n", total_partition_area_B);
 
-	printf("before add to a : %d\n", information->partition_A->cells_in_partition->size);
 	copy_cells_into_partitions(information->partition_A, information->partition_B, list_of_cells_A, list_of_cells_B, total_partition_area_A, total_partition_area_B);
-	printf("after add to a : %d\n", information->partition_A->cells_in_partition->size);
 
 //These three lines delete data, but they shouldn't. I'm not sure why they do
-//	garbage_collection_dll(list_of_cells_A, DO_NOT_DEALLOC_DATA);
-//	free(list_of_cells_A);
-//	free(list_of_cells_B);
-	printf("after add to a : %d\n", information->partition_A->cells_in_partition->size);
+	garbage_collection_dll(list_of_cells_A, DO_NOT_DEALLOC_DATA);
+	garbage_collection_dll(list_of_cells_B, DO_NOT_DEALLOC_DATA);
+	free(list_of_cells_A);
+	free(list_of_cells_B);
 
 }
 
 //Add cells, return dll of cutstate nets
 void copy_cells_into_partitions(struct partition* partition_A, struct partition* partition_B, struct dll* list_of_cells_A, struct dll* list_of_cells_B, int total_partition_area_A, int total_partition_area_B){
 
-	partition_A->cells_in_partition = list_of_cells_A;
 	partition_A->total_partition_area = total_partition_area_A;
 
 
@@ -110,7 +107,6 @@ void copy_cells_into_partitions(struct partition* partition_A, struct partition*
 		temp_node = temp_node->next;
 	}
 
-	partition_B->cells_in_partition = list_of_cells_B;
 	partition_B->total_partition_area = total_partition_area_B;
 
 	//Access the first data node
