@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "main.h"
 #include "basic_objects.h"
 #include "dll_structure.h"
 #include "populate_partitions.h"
@@ -163,16 +164,14 @@ void delete_net_helper(struct net* undesired_net, struct dll* cellist, struct no
 
 
 //Two partitions and a metadata struct get malloc'ed
-struct partition_metadata* initialize_two_partitions(){
+void initialize_two_partitions(struct condensed* information){
 	struct partition* A = malloc(sizeof(struct partition));
 	initialize_partition(A);
 	struct partition* B = malloc(sizeof(struct partition));
 	initialize_partition(B);
 
-	struct partition_metadata* output = malloc(sizeof(struct partition_metadata));
-	output->partition_A = A;
-	output->partition_B = B;
-	return output;
+	information->partition_A = A;
+	information->partition_B = B;
 }
 
 void initialize_partition(struct partition* partition){
@@ -192,18 +191,18 @@ void initialize_partition(struct partition* partition){
 }
 
 
-void populate_partitions(struct partition* partition_A, struct partition* partition_B, struct net** NET_array, int NET_array_size, struct cell** CELL_array, int CELL_array_size, double ratio, int desired_area, int tolerance){
+void populate_partitions(struct condensed* information){
 //	struct cell_assignments* determined;
 
 	//This should be decided with an enum from the main file
-	segregate_cells_randomly(CELL_array, CELL_array_size, partition_A, partition_B, ratio, desired_area, tolerance);
+	segregate_cells_randomly(information);
 	//determined = divide_cells_largest_cell_first();
 	//determined = divide_cells_through_genetic_algorithm();
 	//determined = divide_cells_with_neural_network();
 
 
 	//Generate cutstate list
-	check_cutstate(NET_array, NET_array_size);
+	check_cutstate(information->NET_array, information->NET_array_size);
 
 	printf("\n\n");
 /*

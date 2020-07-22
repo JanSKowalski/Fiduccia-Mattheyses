@@ -10,7 +10,7 @@ struct cell_assignments{
 	struct dll* list_of_cells_for_B;
 };
 
-void segregate_cells_randomly(struct cell**, int, struct partition*, struct partition*, double, int, int);
+void segregate_cells_randomly(struct condensed*);
 void segregate_cells_largest_cell_first();
 void segregate_cells_through_genetic_algorithm();
 void segregate_cells_with_neural_network();

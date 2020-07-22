@@ -19,7 +19,7 @@ struct are_metadata{
 };
 
 
-struct array_metadata* read_in_data_to_arrays(char*, char*);
+struct condensed* read_in_data_to_arrays(char*, char*);
 
 int count_cells_in_are_file(char*);
 struct are_metadata* read_in_are_file(struct cell**, char*);

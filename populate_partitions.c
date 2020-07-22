@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "main.h"
 #include "basic_objects.h"
 #include "dll_structure.h"
 #include "populate_partitions.h"
 
 //Assumes no particular order for the CELL_array
 //This seems to work well when the majority of cells are roughly the same, with large outliers
-void segregate_cells_randomly(struct cell** CELL_array, int CELL_array_size, struct partition* partition_A, struct partition* partition_B, double ratio, int desired_area, int tolerance){
+void segregate_cells_randomly(struct condensed* information){
 	//Cells are divided randomly into two temporary partiton lists
 	//	ex. If rand() >0.5, cell(i) goes to A, otherwise goes to B
 	// The cell areas are meanwhile added to the two totals
@@ -23,6 +24,8 @@ void segregate_cells_randomly(struct cell** CELL_array, int CELL_array_size, str
 	int total_partition_area_A = 0;
 	int total_partition_area_B = 0;
 
+	struct cell** CELL_array = information->CELL_array;
+
 	//Loop until acceptable balance is found
 	while(1){
 		list_of_cells_A = malloc(sizeof(struct dll));
@@ -35,9 +38,9 @@ void segregate_cells_randomly(struct cell** CELL_array, int CELL_array_size, str
 		initialize_dll(list_of_cells_B);
 
 		//Assign every cell to a partition
-		for (i = 0; i< CELL_array_size; i++){
+		for (i = 0; i< information->CELL_array_size; i++){
 			//Decide which partition the cell will go into
-			if (rand() % (int)(1.0/ratio) == 0){
+			if (rand() % (int)(1.0/(information->ratio)) == 0){
 				total_partition_area_A += CELL_array[i]->area;
 				insert_node(list_of_cells_A, 0, CELL_array[i]);
 			}
@@ -50,12 +53,12 @@ void segregate_cells_randomly(struct cell** CELL_array, int CELL_array_size, str
 
 		printf("Area: %d\n", total_partition_area_A);
 
-		printf("Tolerance: %d\n", tolerance);
+		printf("Tolerance: %d\n", information->tolerance);
 
 
 		//If the partition is within tolerance, break the loop and save to partition structs
 		//Otherwise free dlls and try again.
-		if (total_partition_area_A < (desired_area + tolerance) && total_partition_area_A > (desired_area - tolerance)){
+		if (total_partition_area_A < (information->desired_area + information->tolerance) && total_partition_area_A > (information->desired_area - information->tolerance)){
 			printf("Balance achieved!\n");
 			break;
 		}
@@ -72,7 +75,7 @@ void segregate_cells_randomly(struct cell** CELL_array, int CELL_array_size, str
 	printf("Partition A total area: %d\n", total_partition_area_A);
 	printf("Partition B total area: %d\n", total_partition_area_B);
 
-	copy_cells_into_partitions(partition_A, partition_B, list_of_cells_A, list_of_cells_B, total_partition_area_A, total_partition_area_B);
+	copy_cells_into_partitions(information->partition_A, information->partition_B, list_of_cells_A, list_of_cells_B, total_partition_area_A, total_partition_area_B);
 
 	free(list_of_cells_A);
 	free(list_of_cells_B);

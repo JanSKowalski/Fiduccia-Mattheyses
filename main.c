@@ -1,5 +1,5 @@
-
 #include "main.h"
+#include "data_input.h"
 
 /*
 An implementation of the Fiduccia-Mettheyses partitioning algorithm
@@ -20,36 +20,37 @@ Jan Kowalski 3/2020
 //Balance is stored in main
 int main(){
 
-
-	struct array_metadata* input_data = read_in_data_to_arrays(ARE_FILENAME, NETD_FILENAME);
-	struct cell** CELL_array = input_data->CELL_array;
-	struct net** NET_array = input_data->NET_array;
+	struct condensed* information = read_in_data_to_arrays(ARE_FILENAME, NETD_FILENAME);
 
 
-	int desired_area = (int) (RATIO * input_data->total_area);
-	printf("Desired area: %d\n", desired_area);
+	information->desired_area = (int) (RATIO * information->total_area);
+	information->ratio = RATIO;
 
-	struct partition_metadata* partitions = initialize_two_partitions();
-	populate_partitions(partitions->partition_A, partitions->partition_B, NET_array, input_data->number_of_nets, CELL_array, input_data->number_of_cells, RATIO, desired_area, input_data->tolerance);
+	printf("Desired area: %d\n", information->desired_area);
 
-	free_all_memory(input_data, CELL_array, NET_array);
+	initialize_two_partitions(information);
+//	populate_partitions(partitions->partition_A, partitions->partition_B, information->NET_array, information->NET_array_size, information->CELL_array, information->CELL_array_size, RATIO, desired_area, information->tolerance);
+
+
+//	calculate_initial_gains();
+
+
+	free_all_memory(information);
 	return 0;
 }
 
-void free_all_memory(struct array_metadata* input_data, struct cell** CELL_array, struct net** NET_array){
-	int number_of_nets = input_data->number_of_nets;
-	int number_of_cells = input_data->number_of_cells;
+void free_all_memory(struct condensed* information){
 	int i;
 	//Nets should be deallocated before cells
-	for (i = 0; i< number_of_nets; i++){
-		delete_net(NET_array[i]);
+	for (i = 0; i< information->NET_array_size; i++){
+		delete_net(information->NET_array[i]);
 	}
 
-	for (i = 0; i< number_of_cells; i++){
-		delete_cell(CELL_array[i]);
+	for (i = 0; i< information->CELL_array_size; i++){
+		delete_cell(information->CELL_array[i]);
 	}
-	free(NET_array);
-	free(CELL_array);
-	free(input_data);
+	free(information->NET_array);
+	free(information->CELL_array);
+	free(information);
 }
 

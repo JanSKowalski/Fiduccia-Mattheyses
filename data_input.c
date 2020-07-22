@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "main.h"
 #include "data_input.h"
-
 
 //Takes in are and netD filenames
 //Only malloc CELL_array and NET_array in main
-struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_filename){ //, struct cell** CELL_array, struct net** NET_array){
+struct condensed* read_in_data_to_arrays(char* are_filename, char* netD_filename){ //, struct cell** CELL_array, struct net** NET_array){
 
 	//Malloc the CELL_array, using info from count_cells
 	int number_of_cells = count_cells_in_are_file(are_filename);
@@ -28,17 +28,17 @@ struct array_metadata* read_in_data_to_arrays(char* are_filename, char* netD_fil
 	read_in_netD_file(CELL_array, NET_array, netD_filename);
 
 	//Create a record of the array sizes
-	struct array_metadata* read_in_output = malloc(sizeof(struct array_metadata));
+	struct condensed* information = malloc(sizeof(struct condensed));
 
 	//Store the metadata information
-	read_in_output->number_of_cells = number_of_cells;
-	read_in_output->number_of_nets = number_of_nets;
-	read_in_output->CELL_array = CELL_array;
-	read_in_output->NET_array = NET_array;
-	read_in_output->tolerance = tolerance;
-	read_in_output->total_area = total_area;
+	information->CELL_array = CELL_array;
+	information->CELL_array_size = number_of_cells;
+	information->NET_array = NET_array;
+	information->NET_array_size = number_of_nets;
+	information->tolerance = tolerance;
+	information->total_area = total_area;
 
-	return read_in_output;
+	return information;
 
 }
 

@@ -1,13 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "data_input.h"
 
-struct all_important{
+struct condensed{
 	struct cell** CELL_array;
+	int CELL_array_size;
 	struct net** NET_array;
+	int NET_array_size;
 	struct partition* partition_A;
 	struct partition* partition_B;
+	int tolerance;
+	int total_area;
+	int desired_area;
+	double ratio;
 };
 
-void free_all_memory(struct array_metadata*, struct cell**, struct net**);
+void free_all_memory(struct condensed*);
 

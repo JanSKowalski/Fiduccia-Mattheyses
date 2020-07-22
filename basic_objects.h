@@ -1,3 +1,5 @@
+struct condensed;
+
 struct integer{
 	int data;
 };
@@ -48,7 +50,8 @@ void delete_net(struct net*);
 void delete_net_helper(struct net*, struct dll*, struct node*);
 void print_net(struct net*);
 
-struct partition_metadata* initialize_two_partitions();
+void initialize_two_partitions(struct condensed*);
 void initialize_partition(struct partition*);
-void populate_partitions(struct partition*, struct partition*, struct net**, int, struct cell**, int, double, int, int);
+void populate_partitions(struct condensed*);
+//void populate_partitions(struct partition*, struct partition*, struct net**, int, struct cell**, int, double, int, int);
 void delete_partition(struct partition*);
