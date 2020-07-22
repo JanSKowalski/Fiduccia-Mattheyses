@@ -165,20 +165,44 @@ void delete_net_helper(struct net* undesired_net, struct dll* cellist, struct no
 
 //Two partitions and a metadata struct get malloc'ed
 void initialize_two_partitions(struct condensed* information){
+
+	//This value is used to malloc the gain table in partitions
+	int max_nets = calculate_max_nets_on_cell(information->CELL_array, information->CELL_array_size);
+	information->max_nets=max_nets;
+
 	struct partition* A = malloc(sizeof(struct partition));
-	initialize_partition(A);
+	initialize_partition(A, max_nets);
 	struct partition* B = malloc(sizeof(struct partition));
-	initialize_partition(B);
+	initialize_partition(B, max_nets);
 
 	information->partition_A = A;
 	information->partition_B = B;
 }
 
-void initialize_partition(struct partition* partition){
-	//Create main gain dll
-	struct dll* cells_sorted_by_gain = malloc(sizeof(struct dll));
-	initialize_dll(cells_sorted_by_gain);
-	partition->cells_sorted_by_gain=cells_sorted_by_gain;
+//Useful for calculating the gain table size
+int calculate_max_nets_on_cell(struct cell** CELL_array, int CELL_array_size){
+	int max_nets = 0;
+	int i, num_nets;
+	for(i=0;i<CELL_array_size;i++){
+		num_nets = CELL_array[i]->nets->size;
+		if(num_nets > max_nets)
+			max_nets = num_nets;
+	}
+	return max_nets;
+}
+
+
+void initialize_partition(struct partition* partition, int max_nets){
+	//Create main gain array, Gain from [-n, n)
+	struct dll** GAIN_array = calloc(2*max_nets, sizeof(struct dll*));
+	partition->GAIN_array = GAIN_array;
+	int i;
+	struct dll* list_of_cells_with_same_gain;
+	for(i=0; i<2*max_nets; i++){
+		list_of_cells_with_same_gain = malloc(sizeof(struct dll));
+		initialize_dll(list_of_cells_with_same_gain);
+		GAIN_array[i] = list_of_cells_with_same_gain;
+	}
 	//Create list of cells
 	struct dll* cells_in_partition = malloc(sizeof(struct dll));
 	initialize_dll(cells_in_partition);
@@ -205,11 +229,12 @@ void populate_partitions(struct condensed* information){
 	check_cutstate(information->NET_array, information->NET_array_size);
 
 	printf("\n\n");
+	printf("Num cells in A: %d\n", information->partition_A->cells_in_partition->size);
 /*
 	int i;
-	for (i = 0; i< NET_array_size; i++){
-		printf("Cells in partition A: %d\n", NET_array[i]->num_cells_in_partition_A);
-		printf("Cells in partition B: %d\n", NET_array[i]->num_cells_in_partition_B);
+	for (i = 0; i< information->NET_array_size; i++){
+		printf("Cells in partition A: %d\n", information->NET_array[i]->num_cells_in_partition_A);
+		printf("Cells in partition B: %d\n", information->NET_array[i]->num_cells_in_partition_B);
 	}
 */
 }

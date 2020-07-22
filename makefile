@@ -1,7 +1,7 @@
 #Note, -g flag enabled by default
 
-all: main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o fiduccia_mattheyses.h
-	gcc -o main.out main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o fiduccia_mattheyses.h -g
+all: main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o fiduccia_mattheyses.o
+	gcc -o main.out main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o fiduccia_mattheyses.o -g
 	rm *.o
 	./main.out
 

@@ -1,5 +1,6 @@
 #include "main.h"
 #include "data_input.h"
+#include "fiduccia_mattheyses.h"
 
 /*
 An implementation of the Fiduccia-Mettheyses partitioning algorithm
@@ -20,19 +21,22 @@ Jan Kowalski 3/2020
 //Balance is stored in main
 int main(){
 
+	//Obtain information from the two data files (are, netD)
 	struct condensed* information = read_in_data_to_arrays(ARE_FILENAME, NETD_FILENAME);
 
-
+	//Add useful information about partition sizes
 	information->desired_area = (int) (RATIO * information->total_area);
 	information->ratio = RATIO;
 
 	printf("Desired area: %d\n", information->desired_area);
 
+	//Create and initialize the two partition structs
 	initialize_two_partitions(information);
-//	populate_partitions(partitions->partition_A, partitions->partition_B, information->NET_array, information->NET_array_size, information->CELL_array, information->CELL_array_size, RATIO, desired_area, information->tolerance);
+	//Separate the cells into one of the two partitions
+	populate_partitions(information);
 
 
-//	calculate_initial_gains();
+	calculate_initial_gains(information);
 
 
 	free_all_memory(information);

@@ -24,16 +24,11 @@ struct net{
 
 struct partition{
 	struct node* max_gain_pointer;
-	struct dll* cells_sorted_by_gain;
+	//Array of dlls
+	struct dll** GAIN_array;
 	struct dll* cells_in_partition;
 	int total_partition_area;
 };
-
-struct partition_metadata{
-	struct partition* partition_A;
-	struct partition* partition_B;
-};
-
 
 void initialize_integer(struct integer*, int);
 void print_integer(struct integer*);
@@ -50,8 +45,9 @@ void delete_net(struct net*);
 void delete_net_helper(struct net*, struct dll*, struct node*);
 void print_net(struct net*);
 
+int calculate_max_nets_on_cell(struct cell**, int);
 void initialize_two_partitions(struct condensed*);
-void initialize_partition(struct partition*);
+void initialize_partition(struct partition*, int);
 void populate_partitions(struct condensed*);
 //void populate_partitions(struct partition*, struct partition*, struct net**, int, struct cell**, int, double, int, int);
 void delete_partition(struct partition*);

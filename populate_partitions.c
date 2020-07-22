@@ -75,10 +75,16 @@ void segregate_cells_randomly(struct condensed* information){
 	printf("Partition A total area: %d\n", total_partition_area_A);
 	printf("Partition B total area: %d\n", total_partition_area_B);
 
+	printf("before add to a : %d\n", information->partition_A->cells_in_partition->size);
 	copy_cells_into_partitions(information->partition_A, information->partition_B, list_of_cells_A, list_of_cells_B, total_partition_area_A, total_partition_area_B);
+	printf("after add to a : %d\n", information->partition_A->cells_in_partition->size);
 
-	free(list_of_cells_A);
-	free(list_of_cells_B);
+//These three lines delete data, but they shouldn't. I'm not sure why they do
+//	garbage_collection_dll(list_of_cells_A, DO_NOT_DEALLOC_DATA);
+//	free(list_of_cells_A);
+//	free(list_of_cells_B);
+	printf("after add to a : %d\n", information->partition_A->cells_in_partition->size);
+
 }
 
 //Add cells, return dll of cutstate nets
@@ -121,6 +127,7 @@ void copy_cells_into_partitions(struct partition* partition_A, struct partition*
 
 }
 
+//Go through each net and increment the appropriate counter variable
 void update_net_partition_count(struct cell* assigned_cell, partition_type partition){
 		struct dll* netlist = assigned_cell->nets;
 		struct node* temp_net_node = ((struct node*) netlist->head)->next;
@@ -151,3 +158,5 @@ void check_cutstate(struct net** NET_array, int NET_array_size){
 	}
 	printf("Cutstate number: %d\n", cutstate_count);
 }
+
+
