@@ -34,7 +34,7 @@ int main(){
 	populate_partitions(information);
 
 
-	calculate_initial_gains(information);
+//	calculate_initial_gains(information);
 
 
 	free_all_memory(information);
@@ -43,11 +43,14 @@ int main(){
 
 void free_all_memory(struct condensed* information){
 	int i;
+	//Partitions should be deallocated before nets
+	delete_partition(information->partition_A);
+	delete_partition(information->partition_B);
 	//Nets should be deallocated before cells
 	for (i = 0; i< information->NET_array_size; i++){
 		delete_net(information->NET_array[i]);
 	}
-
+	//Cells deallocated last
 	for (i = 0; i< information->CELL_array_size; i++){
 		delete_cell(information->CELL_array[i]);
 	}

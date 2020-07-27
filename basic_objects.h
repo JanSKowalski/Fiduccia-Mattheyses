@@ -26,6 +26,7 @@ struct partition{
 	struct node* max_gain_pointer;
 	//Array of dlls
 	struct dll** GAIN_array;
+	int GAIN_array_size;
 	struct dll* cells_in_partition;
 	int total_partition_area;
 };

@@ -80,8 +80,6 @@ void segregate_cells_randomly(struct condensed* information){
 //These three lines delete data, but they shouldn't. I'm not sure why they do
 	garbage_collection_dll(list_of_cells_A, DO_NOT_DEALLOC_DATA);
 	garbage_collection_dll(list_of_cells_B, DO_NOT_DEALLOC_DATA);
-	free(list_of_cells_A);
-	free(list_of_cells_B);
 
 }
 

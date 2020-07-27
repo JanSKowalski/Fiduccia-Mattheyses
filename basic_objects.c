@@ -88,8 +88,8 @@ void initialize_net(struct net* net, int identifier){
 	net->locked_cells = locked_cells;
 
 	//This causes errors, for some reason
-	//net->number_cells_in_partition_B = 0;
-	//net->number_cells_in_partition_A = 1;
+	net->num_cells_in_partition_A = 0;
+	net->num_cells_in_partition_B = 0;
 
 	net->number_of_cells=0;
 }
@@ -196,6 +196,7 @@ void initialize_partition(struct partition* partition, int max_nets){
 	//Create main gain array, Gain from [-n, n)
 	struct dll** GAIN_array = calloc(2*max_nets, sizeof(struct dll*));
 	partition->GAIN_array = GAIN_array;
+	partition->GAIN_array_size = 2*max_nets;
 	int i;
 	struct dll* list_of_cells_with_same_gain;
 	for(i=0; i<2*max_nets; i++){
@@ -203,6 +204,8 @@ void initialize_partition(struct partition* partition, int max_nets){
 		initialize_dll(list_of_cells_with_same_gain);
 		GAIN_array[i] = list_of_cells_with_same_gain;
 	}
+
+
 	//Create list of cells
 	struct dll* cells_in_partition = malloc(sizeof(struct dll));
 	initialize_dll(cells_in_partition);
@@ -245,5 +248,10 @@ void delete_partition(struct partition* undesired_partition){
 //	garbage_collection_dll(undesired_partition->cells_sorted_by_gain, 
 	//Straight list of cells
 	garbage_collection_dll(undesired_partition->cells_in_partition, DO_NOT_DEALLOC_DATA);
-	
+	int i;
+	for(i = 0; i< undesired_partition->GAIN_array_size; i++){
+		garbage_collection_dll(undesired_partition->GAIN_array[i], DO_NOT_DEALLOC_DATA);
+	}
+	free(undesired_partition->GAIN_array);
+	free(undesired_partition);
 }
