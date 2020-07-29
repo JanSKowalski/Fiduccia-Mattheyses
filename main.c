@@ -8,11 +8,11 @@ Jan Kowalski 3/2020
 */
 
 //Toy files
-#define ARE_FILENAME "testdata.are"
-#define NETD_FILENAME "testdata.netD"
+//#define ARE_FILENAME "testdata.are"
+//#define NETD_FILENAME "testdata.netD"
 //The first testset
-//#define ARE_FILENAME "ibm01.are"
-//#define NETD_FILENAME "ibm01.netD"
+#define ARE_FILENAME "ibm01.are"
+#define NETD_FILENAME "ibm01.netD"
 
 //Ratio is a double between 0<r<1
 #define RATIO 0.5
@@ -34,7 +34,7 @@ int main(){
 	populate_partitions(information);
 
 
-//	calculate_initial_gains(information);
+	calculate_initial_gains(information);
 
 
 	free_all_memory(information);

@@ -6,16 +6,9 @@
 #include "dll_structure.h"
 #include "fiduccia_mattheyses.h"
 
-void testing(){
-	printf("hi\n");
-}
-
 void calculate_initial_gains(struct condensed* information){
-	printf("Gains for partition A\n");
 	gains_for_partition_helper(information->partition_A, PARTITION_A, information->max_nets);
-	printf("\nGains for partition B\n");
 	gains_for_partition_helper(information->partition_B, PARTITION_B, information->max_nets);
-	testing();
 }
 
 void gains_for_partition_helper(struct partition* partition, partition_type label, int max_nets){
@@ -35,7 +28,6 @@ void gains_for_partition_helper(struct partition* partition, partition_type labe
 
 	//Access first node with cell data
 	temp_cell_node = partition->cells_in_partition->head->next;
-	printf("Num cells in  partition: %d\n", ((struct dll*) partition->cells_in_partition)->size);
 	//Go through each cell, calculate gain, add to correct place in GAIN_array
 	while(temp_cell_node != partition->cells_in_partition->tail){
 		temp_cell = (struct cell*) (temp_cell_node->data_structure);
@@ -65,23 +57,12 @@ void gains_for_partition_helper(struct partition* partition, partition_type labe
 
 		//Now that initial gain has been calculated, add to the appropriate dll in GAIN_array
 		cell_placement = max_nets + temp_cell->gain;
-		printf("Cell placement: %d\n", cell_placement);
 		cell_gain_dll = GAIN_array[cell_placement];
-		print_dll(cell_gain_dll, CELL);
 		insert_node(cell_gain_dll, 0, temp_cell);
-		print_dll(cell_gain_dll, CELL);
-
-
-		printf("Cell identifier: %d, Gain: %d\n", temp_cell->identifier, temp_cell->gain);
 		temp_cell_node = temp_cell_node->next;
 	}
 
 
-	int i;
-	for(i=0; i<2*max_nets; i++){
-		printf("New dll size in gain: %d\n", GAIN_array[i]->size);
-	}
-
-	printf("All done\n");
+	//Set max_gain
 }
 
