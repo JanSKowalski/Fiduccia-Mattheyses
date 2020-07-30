@@ -14,7 +14,7 @@ struct cell{
 };
 
 struct net{
-	int number_of_cells;
+	int number_of_cells; //free + locked, not necessarily the size of free_cells
 	int identifier;
 	struct dll* free_cells;
 	struct dll* locked_cells;
@@ -23,6 +23,7 @@ struct net{
 };
 
 struct partition{
+	//Points to the node of the cell with the highest gain
 	struct node* max_gain_pointer;
 	//Array of dlls
 	struct dll** GAIN_array;

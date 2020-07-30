@@ -138,7 +138,7 @@ void update_net_partition_count(struct cell* assigned_cell, partition_type parti
 }
 
 
-void check_cutstate(struct net** NET_array, int NET_array_size){
+void calculate_initial_cutstate(struct net** NET_array, int NET_array_size, struct condensed* information){
 	//Go through each net in NET_array, check to see if net has at least one cell in each
 
 //	struct dll* cutstate_nets = malloc(sizeof(struct dll));
@@ -150,7 +150,9 @@ void check_cutstate(struct net** NET_array, int NET_array_size){
 		if ((temp_net->num_cells_in_partition_A > 0) && (temp_net->num_cells_in_partition_B > 0))
 			cutstate_count++;
 	}
-	printf("Cutstate number: %d\n", cutstate_count);
+	printf("Initial cutstate value: %d\n", cutstate_count);
+	information->current_cutstate = cutstate_count;
+	information->lowest_cutstate = cutstate_count;
 }
 
 

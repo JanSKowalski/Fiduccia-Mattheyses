@@ -16,6 +16,10 @@ struct condensed{
 	double ratio;
 	//The highest number of nets connected to a single cell
 	int max_nets;
+	//The smallest number of nets between partitions encountered during FM passes
+	int lowest_cutstate;
+	//The cutstate value during the current pass
+	int current_cutstate;
 };
 
 void free_all_memory(struct condensed*);

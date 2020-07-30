@@ -109,7 +109,17 @@ int dll_size(struct dll* list){
 	return list->size;
 }
 
-
+/*
+Given a list and a particular object, find the node in the list that contains that object
+*/
+struct node* find_node_in_cell(struct dll* list, void* data_structure){
+	struct node* temp_node = list->head->next;
+	while(temp_node != list->tail){
+		if (temp_node->data_structure == data_structure)
+			return temp_node;
+	}
+	return 0;
+}
 
 
 /*
@@ -153,7 +163,6 @@ void remove_node_using_list(struct dll* list, int position){
 
 //Does not free the data structure, returns the node
 //O(1) remove function requires the pointer to the node
-//UPDATE DLL_SIZE WHEN YOU USE THIS FUNCTION!!!!!!!!
 struct node* remove_node(struct node* node_being_removed, struct dll* list){
 	connect_two_nodes(node_being_removed->previous, node_being_removed->next);
 	list->size = list->size - 1;

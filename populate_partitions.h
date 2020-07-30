@@ -15,8 +15,7 @@ void segregate_cells_largest_cell_first();
 void segregate_cells_through_genetic_algorithm();
 void segregate_cells_with_neural_network();
 
-
-
 void update_net_partition_count(struct cell*, partition_type);
 void copy_cells_into_partitions(struct partition*, struct partition*, struct dll*, struct dll*, int, int);
-void check_cutstate(struct net**, int);
+//An O(nets) function, don't use for loops
+void calculate_initial_cutstate(struct net**, int, struct condensed*);

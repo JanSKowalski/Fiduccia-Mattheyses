@@ -229,9 +229,7 @@ void populate_partitions(struct condensed* information){
 
 
 	//Generate cutstate list
-	check_cutstate(information->NET_array, information->NET_array_size);
-
-	printf("\n");
+	calculate_initial_cutstate(information->NET_array, information->NET_array_size, information);
 /*
 	int i;
 	for (i = 0; i< information->NET_array_size; i++){
