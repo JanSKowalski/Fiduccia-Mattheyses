@@ -76,9 +76,9 @@ Inputs: list, position, data_structure
 	position - Where the list will be included
 	data_structure - a pointer to the data structure
 			making this void* allows a generic data type in node
-Outputs: <none>
+Outputs: The node it created
 */
-void insert_node(struct dll* list, int position, void* data_structure){
+struct node* insert_node(struct dll* list, int position, void* data_structure){
 
 	//reach correct position
 	int index = position;
@@ -99,6 +99,7 @@ void insert_node(struct dll* list, int position, void* data_structure){
 	connect_two_nodes(placeholder, new_node);
 
 	list->size = list->size + 1;
+	return new_node;
 }
 
 

@@ -8,9 +8,10 @@ struct cell{
 	int identifier; //Decided by the order that cells are read in from input .are file
 	int gain; //Initially 0
 	struct dll* nets;
-	int partition; //Partition A:1, Partition B:2, Unassigned:0
+	struct partition* partition; //The inital partition assigned
 	int area; //Detailed in .are file
 	int free_cell; //Initially true (1)
+	struct node* GAIN_array_node;
 };
 
 struct net{

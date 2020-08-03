@@ -19,4 +19,4 @@ void print_gain_arrays(struct partition*);
 void FM_pass(struct condensed*);
 void FM_helper_partition_update(struct partition*, struct node*);
 void FM_helper_check_and_update_cutstate_value(int, struct condensed*);
-int FM_helper_change_gains_of_cells_in_net(int, struct net*, struct dll*, partition_type, change_direction);
+int FM_helper_change_gains_of_cells_in_net(int, struct net*, struct dll*, partition_type, change_direction, int, struct condensed*);

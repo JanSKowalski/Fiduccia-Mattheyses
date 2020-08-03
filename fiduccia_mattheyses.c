@@ -90,7 +90,7 @@ void gains_for_partition_helper(struct partition* partition, partition_type labe
 		//Now that initial gain has been calculated, add to the appropriate dll in GAIN_array
 		cell_placement = max_nets + temp_cell->gain;
 		cell_gain_dll = GAIN_array[cell_placement];
-		insert_node(cell_gain_dll, 0, temp_cell);
+		temp_cell->GAIN_array_node = insert_node(cell_gain_dll, 0, temp_cell);
 		temp_cell_node = temp_cell_node->next;
 
 
@@ -121,8 +121,10 @@ void update_max_gain_pointer(struct partition* partition){
 		}
 	}
 	//If no more cells in the partition, set the pointer to NULL
-	if (no_pointer_change)
+	if (no_pointer_change){
+		printf("Assigned max_pointer to NULL\n");
 		partition->max_gain_pointer = NULL;
+	}
 }
 
 
@@ -134,7 +136,8 @@ void FM_pass(struct condensed* information){
 
 	//The cell moved between partitions
 	struct cell* base_cell;
-	int chosen_partition;
+	int to_partition;
+	int from_partition;
 
 	//Check both partitions with the max_gain_pointer with the higher cell
 	struct node* node_A = information->partition_A->max_gain_pointer;
@@ -157,23 +160,44 @@ void FM_pass(struct condensed* information){
 
 	printf("północ\n");
 
-	//Decide which cell to make base_cell
-	if (node_B == NULL || cell_A->gain >= cell_B->gain){
+	//Add tolerance to the decision process, so that the partitions remain balanced.
 
-	printf("after\n");
+	//Decide which cell to make base_cell
+	if (node_B == NULL || (node_A != NULL && cell_A->gain >= cell_B->gain)){
+
+
+
+		if (node_A == NULL){
+			printf("BLOODY MURDER, NULL NODE A\n");
+		}
+
 
 		base_cell = cell_A;
-		chosen_partition = PARTITION_A;
+		from_partition = PARTITION_A;
+		to_partition = PARTITION_B;
 		//Update partition gain list, and size
 		FM_helper_partition_update(information->partition_A, node_A);
+
+
 	}
 	//if node_A is NULL
-	else{
+	else {
+
+
+		if (node_B == NULL){
+			printf("BLOODY MURDER, NULL NODE B\n");
+		}
+
 		base_cell = cell_B;
-		chosen_partition = PARTITION_B;
+		from_partition = PARTITION_B;
+		to_partition = PARTITION_A;
 		//Update partition gain list, and size
 		FM_helper_partition_update(information->partition_B, node_B);
 	}
+	//else {
+	//	printf("You need to figure something out\n");
+	//	return 1;
+	//}
 
 
 	struct dll* base_cell_netlist = base_cell->nets;
@@ -186,10 +210,10 @@ void FM_pass(struct condensed* information){
 		temp_net = temp_net_node->data_structure;
 		//Update gains of the cells in the net
 		//Only cells on critical nets are updated
-		new_cutsize = FM_helper_change_gains_of_cells_in_net(new_cutsize, temp_net, temp_net->free_cells, chosen_partition, TO);
+		new_cutsize = FM_helper_change_gains_of_cells_in_net(new_cutsize, temp_net, temp_net->free_cells, to_partition, TO, information->max_nets, information);
 
 		//Update net count
-		if (chosen_partition == PARTITION_A){
+		if (from_partition == PARTITION_A){
 			temp_net->num_cells_in_partition_A -= 1;
 			temp_net->num_cells_in_partition_B += 1;
 		} else{
@@ -199,9 +223,8 @@ void FM_pass(struct condensed* information){
 		//Remove cell from net free cells list
 		//Finding and removing takes a long time O(n) for each net. Maybe not necessary?
 		//find_node_in_cell(
-		//remove_node(net->free_cells, 
 
-		new_cutsize = FM_helper_change_gains_of_cells_in_net(new_cutsize, temp_net, temp_net->free_cells, chosen_partition, FROM);
+		new_cutsize = FM_helper_change_gains_of_cells_in_net(new_cutsize, temp_net, temp_net->free_cells, from_partition, FROM, information->max_nets, information);
 
 		temp_net_node = temp_net_node->next;
 	}
@@ -213,19 +236,29 @@ void FM_pass(struct condensed* information){
 	update_max_gain_pointer(information->partition_B);
 }
 
-void FM_helper_partition_update(struct partition* chosen_partition, struct node* base_cell){
-	int position = chosen_partition->GAIN_array_size/2 + ((struct cell*) base_cell->data_structure)->gain;
-	printf("Gain: %d, Position: %d\n", ((struct cell*) base_cell->data_structure)->gain, position);
-	remove_node(base_cell, chosen_partition->GAIN_array[position]);
+void FM_helper_partition_update(struct partition* chosen_partition, struct node* base_cell_node){
 
+	printf("FM helper 1\n");
+	struct cell* base_cell = base_cell_node->data_structure;
+	printf("Base cell: %d\n", base_cell->identifier);
+	int position = chosen_partition->GAIN_array_size/2 + ((struct cell*) base_cell_node->data_structure)->gain;
+	printf("Gain: %d, Position: %d\n", ((struct cell*) base_cell_node->data_structure)->gain, position);
+	remove_node(base_cell_node, chosen_partition->GAIN_array[position]);
+
+	printf("FM helper 2\n");
 
 }
 
 //Go through all the cells in the net's cell list
 //Return modifies cutsize
-int FM_helper_change_gains_of_cells_in_net(int old_cutsize, struct net* net, struct dll* cell_list, partition_type base_cell_position, change_direction option){
+int FM_helper_change_gains_of_cells_in_net(int old_cutsize, struct net* net, struct dll* cell_list, partition_type base_cell_position, change_direction option, int max_nets, struct condensed* information){
 	struct node* temp_node = cell_list->head->next;
 	struct cell* temp_cell;
+
+
+	int position_in_GAIN_array;
+	int cell_placement;
+	struct dll* cell_gain_dll;
 
 	int cutsize = old_cutsize;
 
@@ -235,10 +268,25 @@ int FM_helper_change_gains_of_cells_in_net(int old_cutsize, struct net* net, str
 			while(temp_node != cell_list->tail){
 				//Access cell
 				temp_cell = temp_node->data_structure;
+
+		//NEW		//Remove node from GAIN_array
+				position_in_GAIN_array = temp_cell->gain + max_nets;
+				free(remove_node(temp_cell->GAIN_array_node, temp_cell->partition->GAIN_array[position_in_GAIN_array]));
+
+
+
+				//Modify gain
 				if (option == TO)
 					temp_cell->gain += 1;
 				else
 					temp_cell->gain -= 1;
+
+		//NEW		//Reposition cell in GAIN_array				
+				cell_placement = max_nets + temp_cell->gain;
+				cell_gain_dll = temp_cell->partition->GAIN_array[cell_placement];
+				temp_cell->GAIN_array_node = insert_node(cell_gain_dll, 0, temp_cell);
+
+
 				//Move to next cell
 				temp_node = temp_node->next;
 			}
@@ -252,7 +300,7 @@ int FM_helper_change_gains_of_cells_in_net(int old_cutsize, struct net* net, str
 		if (net->num_cells_in_partition_B == 1){
 			while(temp_node != cell_list->tail){
 				temp_cell = temp_node->data_structure;
-				if (temp_cell->partition == PARTITION_B)
+				if (temp_cell->partition == information->partition_B)
 					if (option == TO)
 						temp_cell->gain -= 1;
 					else
@@ -267,10 +315,30 @@ int FM_helper_change_gains_of_cells_in_net(int old_cutsize, struct net* net, str
 			while(temp_node != cell_list->tail){
 				//Access cell
 				temp_cell = temp_node->data_structure;
+
+
+
+		//NEW		//Remove node from GAIN_array
+				position_in_GAIN_array = temp_cell->gain + max_nets;
+				free(remove_node(temp_cell->GAIN_array_node, temp_cell->partition->GAIN_array[position_in_GAIN_array]));
+
+
+
+
+
 				if (option == TO)
 					temp_cell->gain += 1;
 				else
 					temp_cell->gain -= 1;
+
+				//Reposition cell in GAIN_array
+		//NEW		//Reposition cell in GAIN_array				
+				cell_placement = max_nets + temp_cell->gain;
+				cell_gain_dll = temp_cell->partition->GAIN_array[cell_placement];
+				temp_cell->GAIN_array_node = insert_node(cell_gain_dll, 0, temp_cell);
+
+
+
 				//Move to next cell
 				temp_node = temp_node->next;
 			}
@@ -284,7 +352,7 @@ int FM_helper_change_gains_of_cells_in_net(int old_cutsize, struct net* net, str
 		if (net->num_cells_in_partition_A == 1){
 			while(temp_node != cell_list->tail){
 				temp_cell = temp_node->data_structure;
-				if (temp_cell->partition == PARTITION_A)
+				if (temp_cell->partition == information->partition_A)
 					if (option == TO)
 						temp_cell->gain -= 1;
 					else

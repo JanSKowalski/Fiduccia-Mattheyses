@@ -43,10 +43,12 @@ void segregate_cells_randomly(struct condensed* information){
 			if (rand() % (int)(1.0/(information->ratio)) == 0){
 				total_partition_area_A += CELL_array[i]->area;
 				insert_node(list_of_cells_A, 0, CELL_array[i]);
+				CELL_array[i]->partition = information->partition_A;
 			}
 			else{
 				total_partition_area_B += CELL_array[i]->area;
 				insert_node(list_of_cells_B, 0, CELL_array[i]);
+				CELL_array[i]->partition = information->partition_B;
 			}
 		}
 
