@@ -35,6 +35,7 @@ void initialize_cell(struct cell* new_cell, int identifier, int area){
 
 	new_cell->partition = 0;
 	new_cell->gain = 0;
+
 }
 
 //To find number of pins, call size_dll(cell->nets)
@@ -83,13 +84,10 @@ void initialize_net(struct net* net, int identifier){
 	initialize_dll(free_cells);
 	net->free_cells = free_cells;
 
-	struct dll* locked_cells = malloc(sizeof(struct dll));
-	initialize_dll(locked_cells);
-	net->locked_cells = locked_cells;
-
-	//This causes errors, for some reason
-	net->num_cells_in_partition_A = 0;
-	net->num_cells_in_partition_B = 0;
+	int* num_cells_in_ = malloc(2* sizeof(int));
+	num_cells_in_[PARTITION_A] = 0;
+	num_cells_in_[PARTITION_B] = 0;
+	net->num_cells_in_ = num_cells_in_;
 
 	net->number_of_cells=0;
 }
@@ -106,21 +104,14 @@ void print_net(struct net* net){
 //  Avoids freeing memory twice
 void delete_net(struct net* undesired_net){
 	//Nets have a list of free cells and a list of locked cells, both of which need to be dealt with
-	//List of free cells
-	struct dll* free_cells = undesired_net->free_cells;
-	//The first datanode in free_cells
-	struct node* temp_node_for_cell = ((struct node*)free_cells->head)->next;
 
+	//Delete list of free cells
+	struct dll* free_cells = undesired_net->free_cells;
+	struct node* temp_node_for_cell = ((struct node*)free_cells->head)->next;
 	delete_net_helper(undesired_net, free_cells, temp_node_for_cell);
 	garbage_collection_dll(undesired_net->free_cells, DO_NOT_DEALLOC_DATA);
 
-
-	struct dll* locked_cells = undesired_net->locked_cells;
-	temp_node_for_cell = ((struct node*)locked_cells->head)->next;
-
-	delete_net_helper(undesired_net, locked_cells, temp_node_for_cell);
-	garbage_collection_dll(undesired_net->locked_cells, DO_NOT_DEALLOC_DATA);
-
+	free(undesired_net->num_cells_in_);
 	free(undesired_net);
 }
 

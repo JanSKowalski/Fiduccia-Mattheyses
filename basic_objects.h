@@ -4,13 +4,19 @@ struct integer{
 	int data;
 };
 
+typedef enum{
+	FREE,
+	LOCKED
+} cell_state;
+
 struct cell{
 	int identifier; //Decided by the order that cells are read in from input .are file
 	int gain; //Initially 0
 	struct dll* nets;
 	struct partition* partition; //The inital partition assigned
+	int which_partition; //PARTITION_A or PARTITION_B, partition_type enum
 	int area; //Detailed in .are file
-	int free_cell; //Initially true (1)
+	int cell_state; //FREE or LOCKED, cell_state enum
 	struct node* GAIN_array_node;
 };
 
@@ -18,9 +24,7 @@ struct net{
 	int number_of_cells; //free + locked, not necessarily the size of free_cells
 	int identifier;
 	struct dll* free_cells;
-	struct dll* locked_cells;
-	int num_cells_in_partition_A;
-	int num_cells_in_partition_B;
+	int* num_cells_in_; // position 0 is partition A, position 1 is partition B
 };
 
 struct partition{

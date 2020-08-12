@@ -17,7 +17,6 @@ void segregate_cells_randomly(struct condensed* information){
 
 	int i;
 
-
 	struct dll* list_of_cells_A;
 	struct dll* list_of_cells_B;
 
@@ -44,11 +43,13 @@ void segregate_cells_randomly(struct condensed* information){
 				total_partition_area_A += CELL_array[i]->area;
 				insert_node(list_of_cells_A, 0, CELL_array[i]);
 				CELL_array[i]->partition = information->partition_A;
+				CELL_array[i]->which_partition = PARTITION_A;
 			}
 			else{
 				total_partition_area_B += CELL_array[i]->area;
 				insert_node(list_of_cells_B, 0, CELL_array[i]);
 				CELL_array[i]->partition = information->partition_B;
+				CELL_array[i]->which_partition = PARTITION_B;
 			}
 		}
 
@@ -130,10 +131,8 @@ void update_net_partition_count(struct cell* assigned_cell, partition_type parti
 		struct net* temp_net;
 		while (temp_net_node != netlist->tail){
 			temp_net = temp_net_node->data_structure;
-			if (partition == PARTITION_A)
-				temp_net->num_cells_in_partition_A += 1;
-			else
-				temp_net->num_cells_in_partition_B += 1;
+
+			temp_net->num_cells_in_[partition] += 1;
 			//Move to next net
 			temp_net_node = temp_net_node->next;
 		}
@@ -149,7 +148,7 @@ void calculate_initial_cutstate(struct net** NET_array, int NET_array_size, stru
 	int i;
 	for( i = 0; i < NET_array_size; i++){
 		temp_net = NET_array[i];
-		if ((temp_net->num_cells_in_partition_A > 0) && (temp_net->num_cells_in_partition_B > 0))
+		if ((temp_net->num_cells_in_[PARTITION_A] > 0) && (temp_net->num_cells_in_[PARTITION_B] > 0))
 			cutstate_count++;
 	}
 	printf("Initial cutstate value: %d\n", cutstate_count);
