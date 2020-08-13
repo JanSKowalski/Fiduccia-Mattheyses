@@ -239,10 +239,7 @@ void populate_partitions(struct condensed* information){
 }
 
 
-//Not complete
 void delete_partition(struct partition* undesired_partition){
-	//cells sorted by gain will be tricky because each element will be a dll in its own right
-//	garbage_collection_dll(undesired_partition->cells_sorted_by_gain, 
 	//Straight list of cells
 	garbage_collection_dll(undesired_partition->cells_in_partition, DO_NOT_DEALLOC_DATA);
 	int i;

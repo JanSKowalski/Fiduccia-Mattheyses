@@ -8,11 +8,11 @@ Jan Kowalski 3/2020
 */
 
 //Toy files
-#define ARE_FILENAME "testdata.are"
-#define NETD_FILENAME "testdata.netD"
+//#define ARE_FILENAME "testdata.are"
+//#define NETD_FILENAME "testdata.netD"
 //The first testset
-//#define ARE_FILENAME "ibm01.are"
-//#define NETD_FILENAME "ibm01.netD"
+#define ARE_FILENAME "ibm01.are"
+#define NETD_FILENAME "ibm01.netD"
 
 //Ratio is a double between 0<r<1
 #define RATIO 0.5
@@ -53,6 +53,7 @@ void free_all_memory(struct condensed* information){
 	for (i = 0; i< information->CELL_array_size; i++){
 		delete_cell(information->CELL_array[i]);
 	}
+	free(information->access_);
 	free(information->NET_array);
 	free(information->CELL_array);
 	free(information);

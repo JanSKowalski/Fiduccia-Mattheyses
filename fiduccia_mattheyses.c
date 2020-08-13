@@ -14,8 +14,8 @@ void fiduccia_mattheyses_algorithm(struct condensed* information){
 	int cells_can_still_be_moved = 1;
 
 	while( cells_can_still_be_moved ){
-		print_gain_arrays(information->access_[PARTITION_A]);
-		print_gain_arrays(information->access_[PARTITION_B]);
+//		print_gain_arrays(information->access_[PARTITION_A]);
+//		print_gain_arrays(information->access_[PARTITION_B]);
 		cells_can_still_be_moved = FM_pass(information);
 	}
 
@@ -143,21 +143,23 @@ int FM_pass(struct condensed* information){
 	struct cell* cell_B;
 
 	//Make sure null pointers aren't dereferenced
-	if (node_A != NULL)
+	if (node_A != NULL){
 		cell_A = node_A->data_structure;
-	if (node_B != NULL)
+//		printf("Cell A ID: %d, gain: %d\n", cell_A->identifier, cell_A->gain);
+	}
+
+	if (node_B != NULL){
 		cell_B = node_B->data_structure;
-
-
-
+//		printf("Cell B ID: %d, gain: %d\n", cell_B->identifier, cell_B->gain);
+	}
 
 	//Chose base_cell
 	//Either other base_cell is not a candidate or (cell has the highest gain and does not mess up balance)
-	if (node_B == NULL || ((cell_A->gain >= cell_B->gain) && (information->partition_A->total_partition_area - cell_A->area > information->desired_area - information->tolerance))){
+	if ((node_A != NULL) && (information->partition_A->total_partition_area - cell_A->area > information->desired_area - information->tolerance)){
 		base_cell = cell_A;
 		node_to_be_freed = node_A;
 	}
-	else if (node_A == NULL || (information->partition_B->total_partition_area - cell_B->area > information->total_area - information->desired_area - information->tolerance)){
+	else if ((node_B != NULL) && (information->partition_B->total_partition_area - cell_B->area > information->total_area - information->desired_area - information->tolerance)){
 		base_cell = cell_B;
 		node_to_be_freed = node_B;
 	}
@@ -172,6 +174,10 @@ int FM_pass(struct condensed* information){
 	base_cell_origin = base_cell->which_partition;
 	base_cell_destination = !(base_cell_origin);
 
+//	if ((base_cell->gain > 2) || (base_cell->gain < -3)){
+//		printf("Base cell gain is out of limits\n");
+//		printf("ID: %d, gain: %d\n", base_cell->identifier, base_cell->gain);
+//	}
 
 	//update partitions now that base_cell is chosen
 	//Find the dll the base_cell belongs to (GAIN_array_size is the same for both partitions)
@@ -179,6 +185,8 @@ int FM_pass(struct condensed* information){
 	//Update partition areas
 	information->access_[base_cell_origin]->total_partition_area -= base_cell->area;
 	information->access_[!base_cell_destination]->total_partition_area += base_cell->area;
+
+
 	//Delete node
 	free(remove_node(node_to_be_freed, information->access_[base_cell_origin]->GAIN_array[position]));
 	base_cell->GAIN_array_node = NULL;
@@ -186,7 +194,7 @@ int FM_pass(struct condensed* information){
 
 	//Lock base_cell, no longer free
 	//base_cell->cell_state = LOCKED;
-	printf("%d chosen\n", base_cell->identifier);
+//	printf("%d chosen\n", base_cell->identifier);
 
 	//Setup for the while loop
 	base_cell_netlist = base_cell->nets;
@@ -199,18 +207,20 @@ int FM_pass(struct condensed* information){
 		//Access the net
 		temp_net = temp_net_node->data_structure;
 
-
+		//Skip nets with only one cell
+		if(temp_net->free_cells->size == 1){
+			temp_net_node = temp_net_node->next;
+			continue;
+		}
 
 
 		//if the net was previously not in the cutstate, increment the gains of all cells in net, increase cutsize
 		if (temp_net->num_cells_in_[base_cell_destination] == 0){
-//			new_cutsize = change_gains_of_all_cells_in_net(new_cutsize, INCREMENT, temp_net->free_cells, information);
-			new_cutsize = change_gain_of_cell_in_net(ALL, INCREMENT, new_cutsize, temp_net->free_cells, base_cell_destination, information);
+			new_cutsize = change_gain_of_cell_in_net(base_cell, ALL, INCREMENT, new_cutsize, temp_net->free_cells, base_cell_destination, information);
 		}
 		//else if there was one cell previously in destination partition, decrement the gain of that cell
 		else if(temp_net->num_cells_in_[base_cell_destination] == 1){
-//			change_gain_of_one_cell_in_net(DECREMENT, temp_net->free_cells, base_cell_destination, information);
-			new_cutsize = change_gain_of_cell_in_net(ONE, DECREMENT, new_cutsize, temp_net->free_cells, base_cell_destination, information);
+			new_cutsize = change_gain_of_cell_in_net(base_cell, ONE, DECREMENT, new_cutsize, temp_net->free_cells, base_cell_destination, information);
 		}
 
 
@@ -221,12 +231,10 @@ int FM_pass(struct condensed* information){
 
 		//if the origin partition now has no cells, decrement the gains of all cells in net, decrease cutsize
 		if (temp_net->num_cells_in_[base_cell_origin] == 0){
-//			new_cutsize = change_gains_of_all_cells_in_net(new_cutsize, DECREMENT, temp_net->free_cells, information);
-			new_cutsize = change_gain_of_cell_in_net(ALL, DECREMENT, new_cutsize, temp_net->free_cells, base_cell_destination, information);
+			new_cutsize = change_gain_of_cell_in_net(base_cell, ALL, DECREMENT, new_cutsize, temp_net->free_cells, base_cell_destination, information);
 		}
 		else if(temp_net->num_cells_in_[base_cell_origin] == 1){
-//			change_gain_of_one_cell_in_net(INCREMENT, temp_net->free_cells, base_cell_origin, information);
-			new_cutsize = change_gain_of_cell_in_net(ONE, INCREMENT, new_cutsize, temp_net->free_cells, base_cell_destination, information);
+			new_cutsize = change_gain_of_cell_in_net(base_cell, ONE, INCREMENT, new_cutsize, temp_net->free_cells, base_cell_destination, information);
 		}
 
 		temp_net_node = temp_net_node->next;
@@ -234,7 +242,7 @@ int FM_pass(struct condensed* information){
 
 
 	//Check and update cutstate value
-	printf("Pass cutstate value: %d\n", new_cutsize);
+//	printf("Pass cutstate value: %d\n", new_cutsize);
 	if (new_cutsize < information->lowest_cutstate){
 		information->lowest_cutstate = new_cutsize;
 	}
@@ -250,51 +258,28 @@ int FM_pass(struct condensed* information){
 
 
 
-
-
-//Update partition areas, remove base cell from GAIN_array
-void update_partitions_now_that_base_cell_is_chosen(struct cell* base_cell, struct node* node_to_be_freed, struct condensed* information){
-	int position;
-	partition_type base_cell_origin = base_cell->which_partition;
-	//Find the dll the base_cell belongs to (GAIN_array_size is the same for both partitions)
-	position = information->access_[base_cell_origin]->GAIN_array_size/2 + base_cell->gain;
-	//Update partition areas, delete node
-
-	information->access_[base_cell_origin]->total_partition_area -= base_cell->area;
-	information->access_[!base_cell_origin]->total_partition_area += base_cell->area;
-
-printf("Update_partitions\n");
-		print_gain_arrays(information->access_[base_cell_origin]);
-	free(remove_node(node_to_be_freed, information->access_[base_cell_origin]->GAIN_array[position]));
-		print_gain_arrays(information->access_[base_cell_origin]);
-
-	printf("base_cell: %d\n", base_cell->identifier);
-	base_cell->GAIN_array_node = NULL;
-}
-
-
-int change_gain_of_cell_in_net(cells_to_change scope, change_direction operation, int old_cutsize, struct dll* cellist, int partition_with_isolated_cell, struct condensed* information){
+int change_gain_of_cell_in_net(struct cell* base_cell, cells_to_change scope, change_direction operation, int old_cutsize, struct dll* cellist, int partition_with_isolated_cell, struct condensed* information){
 	struct node* temp_cell_node = cellist->head->next;
 
 	struct cell* temp_cell;
-	int position;
+	int position, old_gain;
 	partition_type temp_cell_origin;
 
+	//Go through every cell in the net's cellist
 	while (temp_cell_node != cellist->tail){
+		//Access the cell
 		temp_cell = temp_cell_node->data_structure;
-		printf("START temp cell: %d\n", temp_cell->identifier);
 		temp_cell_origin = temp_cell->which_partition;
 
-		print_gain_arrays(information->access_[temp_cell_origin]);
-
 		//Remove locked cells from net's free_cell list
-		if (temp_cell->cell_state == LOCKED){
+		if (temp_cell == base_cell || temp_cell->cell_state == LOCKED){
 			//Move to next node, get rid of bad one
 			temp_cell_node = temp_cell_node->next;
 			free(remove_node(temp_cell_node->previous, cellist));
 			continue;
 		}
-		printf("After temp cell: %d\n", temp_cell->identifier);
+
+		old_gain = temp_cell->gain;
 
 		if(scope == ONE){
 			//Update gain
@@ -313,12 +298,14 @@ int change_gain_of_cell_in_net(cells_to_change scope, change_direction operation
 				temp_cell->gain--;
 		}
 
-		//Move cell to correct position in GAIN_array
-		free(remove_node(temp_cell_node, cellist));
-		print_gain_arrays(information->access_[temp_cell_origin]);
+		position = information->access_[temp_cell_origin]->GAIN_array_size/2 + old_gain;
+		//Remove temp_cell from old position in GAIN_array
+		free(remove_node(temp_cell->GAIN_array_node, information->access_[temp_cell_origin]->GAIN_array[position]));
+		//Find the new position temp_cell should be in based on it's gain
 		position = information->access_[temp_cell_origin]->GAIN_array_size/2 + temp_cell->gain;
-		insert_node(information->access_[temp_cell_origin]->GAIN_array[position], 0, temp_cell);
-		print_gain_arrays(information->access_[temp_cell_origin]);
+		//Insert the cell and store the node information
+		temp_cell->GAIN_array_node = insert_node(information->access_[temp_cell_origin]->GAIN_array[position], 0, temp_cell);
+//		print_gain_arrays(information->access_[temp_cell_origin]);
 
 		//Move to next cell
 		temp_cell_node = temp_cell_node->next;
@@ -334,96 +321,3 @@ int change_gain_of_cell_in_net(cells_to_change scope, change_direction operation
 	}
 	return new_cutsize;
 }
-
-int change_gains_of_all_cells_in_net(int old_cutsize, change_direction operation, struct dll* cellist, struct condensed* information){
-	struct node* temp_cell_node = cellist->head->next;
-
-	struct cell* temp_cell;
-	int position;
-	partition_type temp_cell_origin;
-
-	while (temp_cell_node != cellist->tail){
-		temp_cell = temp_cell_node->data_structure;
-		printf("START temp cell: %d\n", temp_cell->identifier);
-		temp_cell_origin = temp_cell->which_partition;
-
-		print_gain_arrays(information->access_[temp_cell_origin]);
-
-		//Remove locked cells from net's free_cell list
-		if (temp_cell->cell_state == LOCKED){
-			//Move to next node, get rid of bad one
-			temp_cell_node = temp_cell_node->next;
-			free(remove_node(temp_cell_node->previous, cellist));
-			continue;
-		}
-
-		//Update gain
-		if (operation == INCREMENT)
-			temp_cell->gain++;
-		else
-			temp_cell->gain--;
-
-
-		//Move cell to correct position in GAIN_array
-		free(remove_node(temp_cell_node, cellist));
-		print_gain_arrays(information->access_[temp_cell_origin]);
-		position = information->access_[temp_cell_origin]->GAIN_array_size/2 + temp_cell->gain;
-		insert_node(information->access_[temp_cell_origin]->GAIN_array[position], 0, temp_cell);
-		print_gain_arrays(information->access_[temp_cell_origin]);
-
-		//Move to next cell
-		temp_cell_node = temp_cell_node->next;
-	}
-
-	//Update cutsize
-	int new_cutsize = old_cutsize;
-	if (operation == INCREMENT)
-		new_cutsize++;
-	else
-		new_cutsize--;
-
-	return new_cutsize;
-}
-
-void change_gain_of_one_cell_in_net(change_direction operation, struct dll* cellist, int partition_with_isolated_cell, struct condensed* information){
-	struct node* temp_cell_node = cellist->head->next;
-	struct cell* temp_cell;
-	int position;
-	partition_type temp_cell_origin;
-
-	while (temp_cell_node != cellist->tail){
-		temp_cell = temp_cell_node->data_structure;
-		printf("START\n");
-		temp_cell_origin = temp_cell->which_partition;
-		print_gain_arrays(information->access_[temp_cell_origin]);
-
-		//Remove locked cells from net's free_cell list
-		if (temp_cell->cell_state == LOCKED){
-			//Move to next node, get rid of bad one
-			temp_cell_node = temp_cell_node->next;
-			free(remove_node(temp_cell_node->previous, cellist));
-			continue;
-		}
-
-		//Update gain
-		if (temp_cell->which_partition == partition_with_isolated_cell){
-			if (operation == INCREMENT)
-				temp_cell->gain++;
-			else
-				temp_cell->gain--;
-		}
-
-
-		//Move cell to correct position in GAIN_array
-		free(remove_node(temp_cell_node, cellist));
-		print_gain_arrays(information->access_[temp_cell_origin]);
-		position = information->access_[temp_cell_origin]->GAIN_array_size/2 + temp_cell->gain;
-		insert_node(information->access_[temp_cell_origin]->GAIN_array[position], 0, temp_cell);
-		print_gain_arrays(information->access_[temp_cell_origin]);
-
-		//Move to next cell
-		temp_cell_node = temp_cell_node->next;
-	}
-
-}
-
