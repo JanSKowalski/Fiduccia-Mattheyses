@@ -36,6 +36,7 @@ void initialize_cell(struct cell* new_cell, int identifier, int area){
 	new_cell->partition = 0;
 	new_cell->gain = 0;
 
+	new_cell->cell_state = FREE;
 }
 
 //To find number of pins, call size_dll(cell->nets)
@@ -161,13 +162,20 @@ void initialize_two_partitions(struct condensed* information){
 	int max_nets = calculate_max_nets_on_cell(information->CELL_array, information->CELL_array_size);
 	information->max_nets=max_nets;
 
-	struct partition* A = malloc(sizeof(struct partition));
-	initialize_partition(A, max_nets);
-	struct partition* B = malloc(sizeof(struct partition));
-	initialize_partition(B, max_nets);
+	struct partition* partition_A = malloc(sizeof(struct partition));
+	initialize_partition(partition_A, max_nets);
+	struct partition* partition_B = malloc(sizeof(struct partition));
+	initialize_partition(partition_B, max_nets);
 
-	information->partition_A = A;
-	information->partition_B = B;
+
+	struct partition** access_ = malloc(2*sizeof(struct partition*));
+	access_[PARTITION_A] = partition_A;
+	access_[PARTITION_B] = partition_B;
+	information->access_ = access_;
+
+
+	information->partition_A = partition_A;
+	information->partition_B = partition_B;
 }
 
 //Useful for calculating the gain table size

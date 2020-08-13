@@ -6,6 +6,7 @@ struct condensed{
 	int CELL_array_size;
 	struct net** NET_array;
 	int NET_array_size;
+	struct partition** access_; //0 is partition A, 1 is partition B
 	struct partition* partition_A;
 	struct partition* partition_B;
 	//The area of the largest cell is used as the balance tolerance

@@ -166,7 +166,7 @@ void remove_node_using_list(struct dll* list, int position){
 //O(1) remove function requires the pointer to the node
 struct node* remove_node(struct node* node_being_removed, struct dll* list){
 	connect_two_nodes(node_being_removed->previous, node_being_removed->next);
-	list->size = list->size - 1;
+	list->size -= 1;
 	return node_being_removed;
 }
 
