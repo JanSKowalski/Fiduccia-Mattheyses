@@ -1,52 +1,49 @@
 #include "main.h"
 #include "data_input.h"
 #include "fiduccia_mattheyses.h"
-#include <time.h>
-#include <string.h>
-#include <sys/stat.h>
 
 /*
-An implementation of the Fiduccia-Mettheyses partitioning algorithm
+An implementation of the Fiduccia-Mattheyses partitioning algorithm
 Jan Kowalski 3/2020-8/2020
 */
 
-//Toy files
-//#define ARE_FILENAME "Data/Input/testdata.are"
-//#define NETD_FILENAME "Data/Input/testdata.netD"
-//The first testset
-#define ARE_FILENAME "Data/Input/ibm01.are"
-#define NETD_FILENAME "Data/Input/ibm01.netD"
 
-//Ratio is a double between 0<r<1
-#define RATIO 0.5
-
-
-//Keep a list of nets in cutstate
-//Balance is stored in main
 int main(){
 
+	//Run the demo if the user option is enabled
+	if (RUN_DEMO_WITH_TESTDATA){
+		import_data_and_run_algorithm(TEST_ARE_FILENAME, TEST_NETD_FILENAME, NULL);
+		return 0;
+	}
+
+
+	//Define format for ibm benchmark files
 	char are_filename[22] = "Data/Input/ibm00.are";
 	char netD_filename[22] = "Data/Input/ibm00.netD";
 
+	char results[50] = "Data/Results/ibm00_cutstate_vs_passes.csv";
+
 	int i;
 	char number[3];
-	//Go through each chip and run FM
+	//Go through each benchmark chip and run FM
 	for(i = 1; i <= 18; i++){
 		snprintf(number, 10, "%d", i);
 		if (i < 10){
 			memcpy(are_filename+15, number, 1);
 			memcpy(netD_filename+15, number, 1);
+			memcpy(results+17, number, 1);
 		}
 		else{
 			memcpy(are_filename+14, number, 2);
 			memcpy(netD_filename+14, number, 2);
+			memcpy(results+16, number, 2);
 		}
 
 		struct stat buffer;
 		FILE *file_check1, *file_check2;
 		//Check if files are available
 		if ((stat(are_filename, &buffer) == 0) && (stat(netD_filename, &buffer) == 0)){
-			import_data_and_run_algorithm(are_filename, netD_filename);
+			import_data_and_run_algorithm(are_filename, netD_filename, results);
 		}
 		else{
 			printf("Either %s or %s is inaccessible by the program\n", are_filename, netD_filename);
@@ -58,15 +55,20 @@ int main(){
 
 
 //Main control function for the program
-void import_data_and_run_algorithm(char* are_filename, char* netD_filename){
+//The ibm_testbench_number is 1-18, 0 for files not in the testbench suite.
+void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char* results_filename){
 
 
 	clock_t begin = clock();
 
 	//Obtain information from the two data files (are, netD)
-//	struct condensed* information = read_in_data_to_arrays(ARE_FILENAME, NETD_FILENAME);
 	struct condensed* information = read_in_data_to_arrays(are_filename, netD_filename);
 
+	int pin_number = find_max_number_of_pins_on_a_cell(information->CELL_array, information->CELL_array_size);
+
+
+	//Keep track of which chip we are working on
+	information->results_csv = results_filename;
 
 	//Add useful information about partition sizes
 	information->desired_area = (int) (RATIO * information->total_area);
@@ -77,16 +79,40 @@ void import_data_and_run_algorithm(char* are_filename, char* netD_filename){
 	//Separate the cells into one of the two partitions
 	populate_partitions(information);
 
+	//Run the algorithm
 	fiduccia_mattheyses_algorithm(information);
 
 	printf("Lowest cutstate: %d\n", information->lowest_cutstate);
 
 	clock_t end = clock();
 	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+
+	FILE *data = fopen("pins.csv", "a");
+
+	fprintf(data, "%d, %f\n", pin_number, time_spent);
+	fclose(data);
+
 	printf("Program execution time: %f\n", time_spent);
 
 	free_all_memory(information);
 }
+
+int find_max_number_of_pins_on_a_cell(struct cell** CELL_array, int CELL_array_size){
+
+	struct cell* temp_cell;
+	int max_number = 0;
+
+	int i;
+	for (i = 0; i< CELL_array_size; i++){
+		temp_cell = CELL_array[i];
+		if (temp_cell->nets->size > max_number)
+			max_number = temp_cell->nets->size;
+	}
+	return max_number;
+}
+
+
+
 
 void free_all_memory(struct condensed* information){
 	int i;

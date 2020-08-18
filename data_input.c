@@ -20,7 +20,6 @@ struct condensed* read_in_data_to_arrays(char* are_filename, char* netD_filename
 	//struct no longer needed, free
 	free(are_output);
 
-
 	//Populate the array with cell structs
 	int number_of_nets = count_nets_in_netD_file(netD_filename);
 	struct net** NET_array = calloc(number_of_nets, sizeof(struct net*));
@@ -29,6 +28,7 @@ struct condensed* read_in_data_to_arrays(char* are_filename, char* netD_filename
 
 	//Create a record of the array sizes
 	struct condensed* information = malloc(sizeof(struct condensed));
+	information->max_number_of_pins_on_a_cell = 0;
 
 	//Store the metadata information
 	information->CELL_array = CELL_array;

@@ -1,4 +1,5 @@
 #include "populate_partitions.h"
+#include <string.h>
 
 typedef enum{
 	INCREMENT,
@@ -13,6 +14,9 @@ typedef enum{
 struct condensed;
 
 void fiduccia_mattheyses_algorithm(struct condensed*);
+
+
+void check_cutstate_values(struct condensed*);
 
 void calculate_initial_gains_wrapper(struct condensed*);
 void calculate_initial_gains(struct partition*, partition_type, int);

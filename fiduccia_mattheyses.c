@@ -16,22 +16,43 @@ void fiduccia_mattheyses_algorithm(struct condensed* information){
 	int cells_can_still_be_moved = 1;
 	int timestep = 0;
 
-	char results[30] = "Data/Results/ibm00.csv";
-	FILE *data = fopen(results, "w");
-	fprintf(data, "Timesteps, Cutstate\n");
-	while( cells_can_still_be_moved ){
-//		printf("###################\n");
-//		print_gain_arrays(information->access_[PARTITION_A]);
-//		print_gain_arrays(information->access_[PARTITION_B]);
 
-		fprintf(data, "%d, %d\n", timestep, information->current_cutstate);
+//	FILE *data = fopen(information->results_csv, "w");
+//	fprintf(data, "Timesteps, Cutstate\n");
+	while( cells_can_still_be_moved ){
+
+		if (PRINT_PARTITION_STATES || RUN_DEMO_WITH_TESTDATA){
+			print_gain_arrays(information->access_[PARTITION_A]);
+			print_gain_arrays(information->access_[PARTITION_B]);
+		}
+//		fprintf(data, "%d, %d\n", timestep, information->current_cutstate);
 
 		cells_can_still_be_moved = FM_pass(information);
+
+		if (DOUBLE_CHECK_CUTSTATE_VALUES)
+			check_cutstate_values(information);
 		timestep++;
 	}
-	fclose(data);
+//	fclose(data);
 
 }
+
+//Go through each net in NET_array, check to see if net has at least one cell in each
+//Because this goes through the entire netlist at every pass, it should not be used during normal cycles
+void check_cutstate_values(struct condensed* information){
+
+	struct net* temp_net;
+	int cutstate_count = 0;
+	int i;
+	for( i = 0; i < information->NET_array_size; i++){
+		temp_net = information->NET_array[i];
+		if ((temp_net->num_cells_in_[PARTITION_A] > 0) && (temp_net->num_cells_in_[PARTITION_B] > 0))
+			cutstate_count++;
+	}
+	printf("Checked cutstate value: %d\n", cutstate_count);
+}
+
+
 
 //Prints the identifers of the cells in each list
 void print_gain_arrays(struct partition* partition){
@@ -44,7 +65,7 @@ void print_gain_arrays(struct partition* partition){
 
 }
 
-
+//Calls calculate_initial_gains for both partitions
 void calculate_initial_gains_wrapper(struct condensed* information){
 	calculate_initial_gains(information->partition_A, PARTITION_A, information->max_nets);
 	calculate_initial_gains(information->partition_B, PARTITION_B, information->max_nets);
@@ -147,7 +168,6 @@ int FM_pass(struct condensed* information){
 
 	//If no more cells, the algorithm halts
 	if (node_A == NULL && node_B == NULL){
-//		printf("All cells locked\n");
 		return 0;
 	}
 
@@ -157,12 +177,10 @@ int FM_pass(struct condensed* information){
 	//Make sure null pointers aren't dereferenced
 	if (node_A != NULL){
 		cell_A = node_A->data_structure;
-//		printf("Cell A ID: %d, gain: %d\n", cell_A->identifier, cell_A->gain);
 	}
 
 	if (node_B != NULL){
 		cell_B = node_B->data_structure;
-//		printf("Cell B ID: %d, gain: %d\n", cell_B->identifier, cell_B->gain);
 	}
 
 	//Chose base_cell
@@ -186,10 +204,6 @@ int FM_pass(struct condensed* information){
 	base_cell_origin = base_cell->which_partition;
 	base_cell_destination = !(base_cell_origin);
 
-//	if ((base_cell->gain > 2) || (base_cell->gain < -3)){
-//		printf("Base cell gain is out of limits\n");
-//		printf("ID: %d, gain: %d\n", base_cell->identifier, base_cell->gain);
-//	}
 
 	//update partitions now that base_cell is chosen
 	//Find the dll the base_cell belongs to (GAIN_array_size is the same for both partitions)
@@ -203,10 +217,6 @@ int FM_pass(struct condensed* information){
 	free(remove_node(node_to_be_freed, information->access_[base_cell_origin]->GAIN_array[position]));
 	base_cell->GAIN_array_node = NULL;
 	base_cell->cell_state = LOCKED;
-
-	//Lock base_cell, no longer free
-	//base_cell->cell_state = LOCKED;
-//	printf("%d chosen\n", base_cell->identifier);
 
 	//Setup for the while loop
 	base_cell_netlist = base_cell->nets;
@@ -224,7 +234,6 @@ int FM_pass(struct condensed* information){
 			temp_net_node = temp_net_node->next;
 			continue;
 		}
-
 
 		//if the net was previously not in the cutstate, increment the gains of all cells in net, increase cutsize
 		if (temp_net->num_cells_in_[base_cell_destination] == 0){
@@ -252,9 +261,12 @@ int FM_pass(struct condensed* information){
 		temp_net_node = temp_net_node->next;
 	}
 
+	//Print current cutstate
+	if (PRINT_PASS_CUTSTATE_VALUES || RUN_DEMO_WITH_TESTDATA){
+		printf("Pass cutstate value: %d\n", new_cutsize);
+	}
 
 	//Check and update cutstate value
-//	printf("Pass cutstate value: %d\n", new_cutsize);
 	if (new_cutsize < information->lowest_cutstate){
 		information->lowest_cutstate = new_cutsize;
 	}
@@ -317,7 +329,6 @@ int change_gain_of_cell_in_net(struct cell* base_cell, cells_to_change scope, ch
 		position = information->access_[temp_cell_origin]->GAIN_array_size/2 + temp_cell->gain;
 		//Insert the cell and store the node information
 		temp_cell->GAIN_array_node = insert_node(information->access_[temp_cell_origin]->GAIN_array[position], 0, temp_cell);
-//		print_gain_arrays(information->access_[temp_cell_origin]);
 
 		//Move to next cell
 		temp_cell_node = temp_cell_node->next;

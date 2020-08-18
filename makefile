@@ -4,8 +4,6 @@ all: main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o f
 	gcc -o main.out main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o fiduccia_mattheyses.o -g
 	rm *.o
 	./main.out
-	gnuplot figure.plot
-	xdg-open Data/Figures/ibm01_cutstate.png
 
 main: main.c main.h
 	gcc -c main.c main.h
@@ -25,10 +23,18 @@ data_input: data_input.c
 fiduccia_mattheyses: fiduccia_mattheyses.c fiduccia_mattheyses.h
 	gcc -c fiduccia_mattheyses.c fiduccia_mattheyses.h
 
+
+##############################################################
+#Extra options
+##############################################################
+
 #Debug and memory checking commands
 debug: all
 	gdb ./main.out
 
+#Check heap memory for leaks
 valgrind: all 
 	valgrind --leak-check=full --track-origins=yes ./main.out
-	
+
+figures: all
+	gnuplot ibm_figures.plot
