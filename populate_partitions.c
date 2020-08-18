@@ -150,7 +150,7 @@ void calculate_initial_cutstate(struct net** NET_array, int NET_array_size, stru
 		if ((temp_net->num_cells_in_[PARTITION_A] > 0) && (temp_net->num_cells_in_[PARTITION_B] > 0))
 			cutstate_count++;
 	}
-	printf("Initial cutstate value: %d\n", cutstate_count);
+//	printf("Initial cutstate value: %d\n", cutstate_count);
 	information->current_cutstate = cutstate_count;
 	information->lowest_cutstate = cutstate_count;
 }

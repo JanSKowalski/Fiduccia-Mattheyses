@@ -1,0 +1,4 @@
+The ISPD98 Circuit Benchmark suite may be found at the following site:
+https://vlsicad.ucsd.edu/UCLAWeb/cheese/ispd98.html#Benchmark%20File%20Format
+
+ibm01-ibm18 .are and .netD files are used

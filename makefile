@@ -4,6 +4,8 @@ all: main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o f
 	gcc -o main.out main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o fiduccia_mattheyses.o -g
 	rm *.o
 	./main.out
+	gnuplot figure.plot
+	xdg-open Data/Figures/ibm01_cutstate.png
 
 main: main.c main.h
 	gcc -c main.c main.h

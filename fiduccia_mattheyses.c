@@ -11,13 +11,25 @@ void fiduccia_mattheyses_algorithm(struct condensed* information){
 
 	calculate_initial_gains_wrapper(information);
 
-	int cells_can_still_be_moved = 1;
+	printf("Initial cutstate: %d\n", information->current_cutstate);
 
+	int cells_can_still_be_moved = 1;
+	int timestep = 0;
+
+	char results[30] = "Data/Results/ibm00.csv";
+	FILE *data = fopen(results, "w");
+	fprintf(data, "Timesteps, Cutstate\n");
 	while( cells_can_still_be_moved ){
+//		printf("###################\n");
 //		print_gain_arrays(information->access_[PARTITION_A]);
 //		print_gain_arrays(information->access_[PARTITION_B]);
+
+		fprintf(data, "%d, %d\n", timestep, information->current_cutstate);
+
 		cells_can_still_be_moved = FM_pass(information);
+		timestep++;
 	}
+	fclose(data);
 
 }
 
@@ -135,7 +147,7 @@ int FM_pass(struct condensed* information){
 
 	//If no more cells, the algorithm halts
 	if (node_A == NULL && node_B == NULL){
-		printf("All cells locked\n");
+//		printf("All cells locked\n");
 		return 0;
 	}
 
@@ -184,7 +196,7 @@ int FM_pass(struct condensed* information){
 	int position = information->access_[base_cell_origin]->GAIN_array_size/2 + base_cell->gain;
 	//Update partition areas
 	information->access_[base_cell_origin]->total_partition_area -= base_cell->area;
-	information->access_[!base_cell_destination]->total_partition_area += base_cell->area;
+	information->access_[base_cell_destination]->total_partition_area += base_cell->area;
 
 
 	//Delete node

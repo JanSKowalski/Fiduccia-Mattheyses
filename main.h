@@ -23,5 +23,6 @@ struct condensed{
 	int current_cutstate;
 };
 
+void import_data_and_run_algorithm(char *, char *);
 void free_all_memory(struct condensed*);
 
