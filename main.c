@@ -64,9 +64,6 @@ void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char
 	//Obtain information from the two data files (are, netD)
 	struct condensed* information = read_in_data_to_arrays(are_filename, netD_filename);
 
-	int pin_number = find_max_number_of_pins_on_a_cell(information->CELL_array, information->CELL_array_size);
-
-
 	//Keep track of which chip we are working on
 	information->results_csv = results_filename;
 
@@ -89,28 +86,13 @@ void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char
 
 	FILE *data = fopen("pins.csv", "a");
 
-	fprintf(data, "%d, %f\n", pin_number, time_spent);
+	fprintf(data, "%d, %f\n", information->total_pin_count, time_spent);
 	fclose(data);
 
 	printf("Program execution time: %f\n", time_spent);
 
 	free_all_memory(information);
 }
-
-int find_max_number_of_pins_on_a_cell(struct cell** CELL_array, int CELL_array_size){
-
-	struct cell* temp_cell;
-	int max_number = 0;
-
-	int i;
-	for (i = 0; i< CELL_array_size; i++){
-		temp_cell = CELL_array[i];
-		if (temp_cell->nets->size > max_number)
-			max_number = temp_cell->nets->size;
-	}
-	return max_number;
-}
-
 
 
 

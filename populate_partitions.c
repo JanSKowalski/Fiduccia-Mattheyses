@@ -54,15 +54,10 @@ void segregate_cells_randomly(struct condensed* information){
 		}
 
 
-//		printf("Area: %d\n", total_partition_area_A);
-
-//		printf("Tolerance: %d\n", information->tolerance);
-
 
 		//If the partition is within tolerance, break the loop and save to partition structs
 		//Otherwise free dlls and try again.
 		if (total_partition_area_A < (information->desired_area + information->tolerance) && total_partition_area_A > (information->desired_area - information->tolerance)){
-//			printf("Balance achieved!\n");
 			break;
 		}
 
@@ -74,9 +69,6 @@ void segregate_cells_randomly(struct condensed* information){
 
 	}
 
-
-//	printf("Partition A total area: %d\n", total_partition_area_A);
-//	printf("Partition B total area: %d\n", total_partition_area_B);
 
 	copy_cells_into_partitions(information->partition_A, information->partition_B, list_of_cells_A, list_of_cells_B, total_partition_area_A, total_partition_area_B);
 
@@ -150,7 +142,8 @@ void calculate_initial_cutstate(struct net** NET_array, int NET_array_size, stru
 		if ((temp_net->num_cells_in_[PARTITION_A] > 0) && (temp_net->num_cells_in_[PARTITION_B] > 0))
 			cutstate_count++;
 	}
-//	printf("Initial cutstate value: %d\n", cutstate_count);
+	if(PRINT_PARTITION_STATES)
+		printf("Initial cutstate value: %d\n", cutstate_count);
 	information->current_cutstate = cutstate_count;
 	information->lowest_cutstate = cutstate_count;
 }

@@ -24,11 +24,10 @@ struct condensed* read_in_data_to_arrays(char* are_filename, char* netD_filename
 	int number_of_nets = count_nets_in_netD_file(netD_filename);
 	struct net** NET_array = calloc(number_of_nets, sizeof(struct net*));
 
-	read_in_netD_file(CELL_array, NET_array, netD_filename);
 
 	//Create a record of the array sizes
 	struct condensed* information = malloc(sizeof(struct condensed));
-	information->max_number_of_pins_on_a_cell = 0;
+	information->total_pin_count = read_in_netD_file(CELL_array, NET_array, netD_filename);
 
 	//Store the metadata information
 	information->CELL_array = CELL_array;
@@ -125,11 +124,18 @@ int count_nets_in_netD_file(char* netD_filename){
 }
 
 
-void read_in_netD_file(struct cell** CELL_array, struct net** NET_array, char* netD_filename){
+int read_in_netD_file(struct cell** CELL_array, struct net** NET_array, char* netD_filename){
 	FILE *fp;
 	char line[256];
 	fp = fopen(netD_filename, "r");
 	int net_index = 0;
+
+	//Very quickly extract the pin count
+	fgets(line, sizeof(line), fp);
+	fgets(line, sizeof(line), fp);
+	char* ptr;
+	int total_pin_number = strtol(line, &ptr, 10);
+
 	//A pointer to the current net, so that cells can be added to it.
 	struct net* incubent_net = NULL;
 	//loop through each line, extract information about the net connections
@@ -165,4 +171,5 @@ void read_in_netD_file(struct cell** CELL_array, struct net** NET_array, char* n
 		}
 	}
 	fclose(fp);
+	return total_pin_number;
 }

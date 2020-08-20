@@ -55,3 +55,4 @@ dkms.conf
 
 # Data files
 Data/Input/ibm*
+*.log

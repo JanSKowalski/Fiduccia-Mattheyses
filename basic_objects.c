@@ -218,24 +218,15 @@ void initialize_partition(struct partition* partition, int max_nets){
 
 
 void populate_partitions(struct condensed* information){
-//	struct cell_assignments* determined;
 
-	//This should be decided with an enum from the main file
-	segregate_cells_randomly(information);
-	//determined = divide_cells_largest_cell_first();
-	//determined = divide_cells_through_genetic_algorithm();
-	//determined = divide_cells_with_neural_network();
-
+	//This should be determined by the PARTITION_CELLS option in main.h
+	if(PARTITION_CELLS == GENETIC_ALGORITHM)
+		segregate_cells_with_GA(information);
+	else
+		segregate_cells_randomly(information);
 
 	//Generate cutstate list
 	calculate_initial_cutstate(information->NET_array, information->NET_array_size, information);
-/*
-	int i;
-	for (i = 0; i< information->NET_array_size; i++){
-		printf("Cells in partition A: %d\n", information->NET_array[i]->num_cells_in_partition_A);
-		printf("Cells in partition B: %d\n", information->NET_array[i]->num_cells_in_partition_B);
-	}
-*/
 }
 
 

@@ -25,4 +25,4 @@ int count_cells_in_are_file(char*);
 struct are_metadata* read_in_are_file(struct cell**, char*);
 
 int count_nets_in_netD_file(char*);
-void read_in_netD_file(struct cell**, struct net**, char*);
+int read_in_netD_file(struct cell**, struct net**, char*);
