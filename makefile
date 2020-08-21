@@ -4,7 +4,7 @@
 all: main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o fiduccia_mattheyses.o genetic_algorithm.o
 	gcc -o main.out main.o dll_structure.o basic_objects.o populate_partitions.o data_input.o fiduccia_mattheyses.o genetic_algorithm.o
 	rm *.o
-#	./main.out
+	./main.out
 
 main: main.c main.h
 	gcc -c main.c main.h

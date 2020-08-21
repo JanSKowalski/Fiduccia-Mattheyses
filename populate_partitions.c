@@ -69,10 +69,8 @@ void segregate_cells_randomly(struct condensed* information){
 
 	}
 
-
 	copy_cells_into_partitions(information->partition_A, information->partition_B, list_of_cells_A, list_of_cells_B, total_partition_area_A, total_partition_area_B);
 
-//These three lines delete data, but they shouldn't. I'm not sure why they do
 	garbage_collection_dll(list_of_cells_A, DO_NOT_DEALLOC_DATA);
 	garbage_collection_dll(list_of_cells_B, DO_NOT_DEALLOC_DATA);
 
@@ -142,8 +140,7 @@ void calculate_initial_cutstate(struct net** NET_array, int NET_array_size, stru
 		if ((temp_net->num_cells_in_[PARTITION_A] > 0) && (temp_net->num_cells_in_[PARTITION_B] > 0))
 			cutstate_count++;
 	}
-	if(PRINT_PARTITION_STATES)
-		printf("Initial cutstate value: %d\n", cutstate_count);
+	printf("Initial cutstate value: %d\n", cutstate_count);
 	information->current_cutstate = cutstate_count;
 	information->lowest_cutstate = cutstate_count;
 }

@@ -26,7 +26,7 @@ int main(){
 	int i;
 	char number[3];
 	//Go through each benchmark chip and run FM
-	for(i = 1; i <= 18; i++){
+	for(i = 1; i <= 1; i++){
 		snprintf(number, 10, "%d", i);
 		if (i < 10){
 			memcpy(are_filename+15, number, 1);

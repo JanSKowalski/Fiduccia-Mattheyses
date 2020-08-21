@@ -24,7 +24,7 @@
 // testdata.are and testdata.netD files. It also turns on verbose features,
 // such as printing partition states and pass cutstate values
 //Turn this to NO in order to run the IBM testbenches (assuming download)
-#define RUN_DEMO_WITH_TESTDATA YES
+#define RUN_DEMO_WITH_TESTDATA NO
 
 //This option activates a function that at every pass goes through the netlist
 // and counts from scratch the nets with cells in both partitions
@@ -46,7 +46,7 @@
 //This determines how cells are initially distributed between the two partitions
 //More specific options for the genetic algorithm are under genetic_algorithm.h
 //The default option is RANDOMLY
-#define PARTITION_CELLS RANDOMLY
+#define PARTITION_CELLS GENETIC_ALGORITHM
 
 //*************************************************************************
 
