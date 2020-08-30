@@ -54,5 +54,8 @@ dkms.conf
 *~
 
 # Data files
-Data/Input/ibm*
+data/ibm*
 *.log
+
+!data/ibm01.are
+!data/ibm01.netD

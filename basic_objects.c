@@ -1,9 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include "main.h"
-#include "basic_objects.h"
-#include "dll_structure.h"
-#include "populate_partitions.h"
+#include "include/main.h"
 
 //This is a collection of objects that can be stored in the doubly-linked list
 
@@ -81,9 +76,11 @@ void delete_cell(struct cell* cell){
 void initialize_net(struct net* net, int identifier){
 	net->identifier = identifier;
 
-	struct dll* free_cells = malloc(sizeof(struct dll));
-	initialize_dll(free_cells);
-	net->free_cells = free_cells;
+	net->free_cells = malloc(sizeof(struct dll));
+	initialize_dll(net->free_cells);
+
+	net->locked_cells = malloc(sizeof(struct dll));
+	initialize_dll(net->locked_cells);
 
 	int* num_cells_in_ = malloc(2* sizeof(int));
 	num_cells_in_[PARTITION_A] = 0;
@@ -111,6 +108,11 @@ void delete_net(struct net* undesired_net){
 	struct node* temp_node_for_cell = ((struct node*)free_cells->head)->next;
 	delete_net_helper(undesired_net, free_cells, temp_node_for_cell);
 	garbage_collection_dll(undesired_net->free_cells, DO_NOT_DEALLOC_DATA);
+
+	struct dll* locked_cells = undesired_net->locked_cells;
+	temp_node_for_cell = ((struct node*)locked_cells->head)->next;
+	delete_net_helper(undesired_net, locked_cells, temp_node_for_cell);
+	garbage_collection_dll(undesired_net->locked_cells, DO_NOT_DEALLOC_DATA);
 
 	free(undesired_net->num_cells_in_);
 	free(undesired_net);
@@ -163,9 +165,9 @@ void initialize_two_partitions(struct condensed* information){
 	information->max_nets=max_nets;
 
 	struct partition* partition_A = malloc(sizeof(struct partition));
-	initialize_partition(partition_A, max_nets);
+	initialize_partition(partition_A, max_nets, PARTITION_A);
 	struct partition* partition_B = malloc(sizeof(struct partition));
-	initialize_partition(partition_B, max_nets);
+	initialize_partition(partition_B, max_nets, PARTITION_B);
 
 
 	struct partition** access_ = malloc(2*sizeof(struct partition*));
@@ -191,7 +193,7 @@ int calculate_max_nets_on_cell(struct cell** CELL_array, int CELL_array_size){
 }
 
 
-void initialize_partition(struct partition* partition, int max_nets){
+void initialize_partition(struct partition* partition, int max_nets, int which_partition){
 	//Create main gain array, Gain from [-n, n)
 	struct dll** GAIN_array = calloc(2*max_nets, sizeof(struct dll*));
 	partition->GAIN_array = GAIN_array;
@@ -203,6 +205,8 @@ void initialize_partition(struct partition* partition, int max_nets){
 		initialize_dll(list_of_cells_with_same_gain);
 		GAIN_array[i] = list_of_cells_with_same_gain;
 	}
+
+	partition->which_partition = which_partition;
 
 
 	//Create list of cells
@@ -218,15 +222,18 @@ void initialize_partition(struct partition* partition, int max_nets){
 
 
 void populate_partitions(struct condensed* information){
-
 	//This should be determined by the PARTITION_CELLS option in main.h
 	if(PARTITION_CELLS == GENETIC_ALGORITHM)
 		segregate_cells_with_GA(information);
 	else
 		segregate_cells_randomly(information);
 
+	int current_cutstate = calculate_initial_cutstate(information->NET_array, information->NET_array_size, information);
+
 	//Generate cutstate list
-	calculate_initial_cutstate(information->NET_array, information->NET_array_size, information);
+	if(information->FM_chromosome == NULL)
+		information->lowest_cutstate = current_cutstate;
+
 }
 
 

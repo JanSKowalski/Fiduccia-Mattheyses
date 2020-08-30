@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "main.h"
-#include "basic_objects.h"
-#include "dll_structure.h"
-#include "populate_partitions.h"
+#include "include/main.h"
 
 //Assumes no particular order for the CELL_array
 //This seems to work well when the majority of cells are roughly the same, with large outliers
@@ -20,56 +15,65 @@ void segregate_cells_randomly(struct condensed* information){
 	struct dll* list_of_cells_A;
 	struct dll* list_of_cells_B;
 
-	int total_partition_area_A = 0;
-	int total_partition_area_B = 0;
+	int total_partition_areas[2];
+	total_partition_areas[PARTITION_A] = 0;
+	total_partition_areas[PARTITION_B] = 0;
 
 	struct cell** CELL_array = information->CELL_array;
 
+
+	//which partition the cell is assigned to PARTITION_A, PARTITION_B
+	int partition_placement;
 	//Loop until acceptable balance is found
 	while(1){
 		list_of_cells_A = malloc(sizeof(struct dll));
 		list_of_cells_B = malloc(sizeof(struct dll));
 
 		//Seed random for different results (adding rand() prevents the seed from being reused in short time intervals)
-		srand(time(NULL)+rand());
 		//Initialize the dlls
 		initialize_dll(list_of_cells_A);
 		initialize_dll(list_of_cells_B);
 
+		srand(time(NULL)+rand());
+
 		//Assign every cell to a partition
 		for (i = 0; i< information->CELL_array_size; i++){
 			//Decide which partition the cell will go into
-			if (rand() % (int)(1.0/(information->ratio)) == 0){
-				total_partition_area_A += CELL_array[i]->area;
+			//First option is random, repeat runs are based on FM_chromosome
+			if (information->FM_chromosome != NULL){
+				partition_placement = information->FM_chromosome->gene_array[i];
+			}
+			else
+				partition_placement = ((rand() % (int)(1.0/(information->ratio))) == 0);
+
+			total_partition_areas[partition_placement] += CELL_array[i]->area;
+			CELL_array[i]->partition = information->access_[partition_placement];
+			CELL_array[i]->which_partition = partition_placement;
+
+			if (partition_placement == PARTITION_A){
 				insert_node(list_of_cells_A, 0, CELL_array[i]);
-				CELL_array[i]->partition = information->partition_A;
-				CELL_array[i]->which_partition = PARTITION_A;
 			}
 			else{
-				total_partition_area_B += CELL_array[i]->area;
 				insert_node(list_of_cells_B, 0, CELL_array[i]);
-				CELL_array[i]->partition = information->partition_B;
-				CELL_array[i]->which_partition = PARTITION_B;
 			}
+
 		}
-
-
 
 		//If the partition is within tolerance, break the loop and save to partition structs
 		//Otherwise free dlls and try again.
-		if (total_partition_area_A < (information->desired_area + information->tolerance) && total_partition_area_A > (information->desired_area - information->tolerance)){
+		if (total_partition_areas[PARTITION_A] < (information->desired_area + information->tolerance) && total_partition_areas[PARTITION_A] > (information->desired_area - information->tolerance)){
 			break;
 		}
 
 		//Get ready for next loop
 		garbage_collection_dll(list_of_cells_A, DO_NOT_DEALLOC_DATA);
 		garbage_collection_dll(list_of_cells_B, DO_NOT_DEALLOC_DATA);
-		total_partition_area_A = 0;
-		total_partition_area_B = 0;
+		total_partition_areas[PARTITION_A] = 0;
+		total_partition_areas[PARTITION_B] = 0;
 
 	}
 
-	copy_cells_into_partitions(information->partition_A, information->partition_B, list_of_cells_A, list_of_cells_B, total_partition_area_A, total_partition_area_B);
+	copy_cells_into_partitions(information->partition_A, information->partition_B, list_of_cells_A, list_of_cells_B, total_partition_areas[PARTITION_A], total_partition_areas[PARTITION_B]);
 
 	garbage_collection_dll(list_of_cells_A, DO_NOT_DEALLOC_DATA);
 	garbage_collection_dll(list_of_cells_B, DO_NOT_DEALLOC_DATA);
@@ -129,7 +133,7 @@ void update_net_partition_count(struct cell* assigned_cell, partition_type parti
 }
 
 
-void calculate_initial_cutstate(struct net** NET_array, int NET_array_size, struct condensed* information){
+int calculate_initial_cutstate(struct net** NET_array, int NET_array_size, struct condensed* information){
 	//Go through each net in NET_array, check to see if net has at least one cell in each
 
 	struct net* temp_net;
@@ -142,7 +146,6 @@ void calculate_initial_cutstate(struct net** NET_array, int NET_array_size, stru
 	}
 	printf("Initial cutstate value: %d\n", cutstate_count);
 	information->current_cutstate = cutstate_count;
-	information->lowest_cutstate = cutstate_count;
+	return cutstate_count;
 }
-
 

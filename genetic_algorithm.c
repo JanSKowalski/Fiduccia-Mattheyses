@@ -1,15 +1,19 @@
-#include "main.h"
-#include "genetic_algorithm.h"
-#include "populate_partitions.h"
-#include "dll_structure.h"
-#include "basic_objects.h"
+#include "include/main.h"
 
 //Main organizing GA function
 void segregate_cells_with_GA(struct condensed* information){
 
 	//Generate POPULATION_SIZE chromosome structs with random inputs similar to random (close to balanced but not rigorously enforced)
 	struct chromosome** CHROMOSOME_array = malloc(POPULATION_SIZE * sizeof(struct chromosome*));
-	generate_chromosomes(CHROMOSOME_array, information);
+
+	if(information->FM_chromosome == NULL){
+		generate_chromosomes(CHROMOSOME_array, information);
+	}
+	else{
+		introduce_FM_chromosome(CHROMOSOME_array, information);
+		breed_chromosome_offspring(CHROMOSOME_array, information);
+	}
+
 	find_cutstates_and_balance_of_population(CHROMOSOME_array, information);
 
 	int no_balanced_chromosomes = 1;
@@ -21,14 +25,12 @@ void segregate_cells_with_GA(struct condensed* information){
 
 
 	//for NUM_GA_PASSES, cull the bad chromosomes, breed the good chromosomes, calculate the cutstate of the new chromosomes
-	while((pass_number < NUM_GA_PASSES) ){//|| (no_balanced_chromosomes && (pass_number <= 0))){
-
+	while((pass_number < NUM_GA_PASSES) || (no_balanced_chromosomes && (pass_number >= NUM_GA_PASSES))){
 		//Cull bad chromosomes
 		cull_bad_chromosomes(CHROMOSOME_array, information);
 
 		//Take parts of two chromosomes with better than average cutstates
 		breed_chromosome_offspring(CHROMOSOME_array, information);
-
 
 		//Find the cutstates of chromosomes and note whether a balanced chromosome exists
 		no_balanced_chromosomes = !(find_cutstates_and_balance_of_population(CHROMOSOME_array, information));
@@ -114,6 +116,24 @@ void generate_chromosomes(struct chromosome** CHROMOSOME_array, struct condensed
 
 }
 
+//Set the first element of CHROMOSOME_array to FM_chromosome, set the rest to NULL
+void introduce_FM_chromosome(struct chromosome** CHROMOSOME_array, struct condensed* information){
+	int i;
+//	CHROMOSOME_array[0] = information->FM_chromosome;
+	//Copy over the data from FM_chromosome
+	struct chromosome* FM_chromosome_copy = malloc(sizeof(struct chromosome));
+	initialize_chromosome(FM_chromosome_copy, information);
+	for(i=0;i<information->CELL_array_size;i++){
+		FM_chromosome_copy->gene_array[i] = information->FM_chromosome->gene_array[i];
+	}
+	CHROMOSOME_array[0] = FM_chromosome_copy;
+
+	//Set the rest of the chromosomes to NULL
+	for(i=1; i< POPULATION_SIZE; i++){
+		CHROMOSOME_array[i] = NULL;
+	}
+}
+
 
 void initialize_chromosome(struct chromosome* temp_chromosome, struct condensed* information){
 	int* netstate_array = malloc(information->NET_array_size * sizeof(int));
@@ -163,9 +183,10 @@ void cull_bad_chromosomes(struct chromosome** CHROMOSOME_array, struct condensed
 			smallest_cutstate = CHROMOSOME_array[i]->cutstate;
 	}
 	cutstate_average = cutstate_average / POPULATION_SIZE;
-	//It's possible to wiegh this closer or farther from the average
+	//It's possible to weigh this closer or farther from the average
 	int threshold = (cutstate_average + WEIGH_TOWARDS_TOP_CHROMOSOME*smallest_cutstate)/(WEIGH_TOWARDS_TOP_CHROMOSOME + 1);
-	printf("Cutstate_average: %d\n", cutstate_average);
+	if (PRINT_AVERAGE_CUTSTATE)
+		printf("Cutstate_average: %d\n", cutstate_average);
 	for(i=0;i<POPULATION_SIZE;i++){
 		if(CHROMOSOME_array[i]->cutstate > threshold){
 			delete_chromosome(CHROMOSOME_array[i]);
@@ -213,15 +234,21 @@ void breed_chromosome_offspring(struct chromosome** CHROMOSOME_array, struct con
 			initialize_chromosome(temp_chromosome, information);
 
 			//Decide on the parents
-			srand(time(NULL) + rand());
-			parents[0] = good_candidates[rand() % num_good_candidates];
-			srand(time(NULL) + rand());
-			parents[1] = good_candidates[rand() % num_good_candidates];
+			if (num_good_candidates == 1){
+				parents[0] = good_candidates[0];
+				parents[1] = good_candidates[0];
+			}
+			else{
+				srand(time(NULL) + rand());
+				parents[0] = good_candidates[rand() % num_good_candidates];
+				srand(time(NULL) + rand());
+				parents[1] = good_candidates[rand() % num_good_candidates];
+			}
 
 			cell_gene_index = 0;
 			donor_parent = 0;
 			crossovers_to_occur = NUM_CROSSOVERS;
-			crossover_location;
+			crossover_location = (rand() % (information->CELL_array_size));
 			for(cell_gene_index = 0; cell_gene_index < information->CELL_array_size; cell_gene_index++){
 				//Switch if allowed at random
 				if ((crossovers_to_occur > 0) && (cell_gene_index == crossover_location)){
@@ -250,7 +277,7 @@ void mutate_offspring(struct chromosome* offspring, int num_cells){
 	int* gene_array = offspring->gene_array;
 	for(i=0;i<num_cells;i++){
 		srand(time(NULL)+rand());
-		if(rand() % ( 100 / MUTATION_FREQUENCY ) == 0)
+		if(rand() % (int)( 100.0 / (MUTATION_FREQUENCY) ) == 0)
 			gene_array[i] = !(gene_array[i]);
 	}
 }
@@ -354,9 +381,11 @@ void print_CHROMOSOME_array(struct chromosome** CHROMOSOME_array){
 
 
 void delete_chromosome(struct chromosome* unwanted_chromosome){
-	free(unwanted_chromosome->netstate_array);
-	free(unwanted_chromosome->gene_array);
-	free(unwanted_chromosome);
+	if (unwanted_chromosome != NULL){
+		free(unwanted_chromosome->netstate_array);
+		free(unwanted_chromosome->gene_array);
+		free(unwanted_chromosome);
+	}
 }
 
 

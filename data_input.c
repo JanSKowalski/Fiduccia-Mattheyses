@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "main.h"
-#include "data_input.h"
+#include "include/main.h"
 
 //Takes in are and netD filenames
 //Only malloc CELL_array and NET_array in main

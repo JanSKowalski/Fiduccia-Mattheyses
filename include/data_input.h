@@ -1,6 +1,3 @@
-#include "dll_structure.h"
-#include "basic_objects.h"
-
 struct array_metadata{
 	int tolerance;
 	int total_area;

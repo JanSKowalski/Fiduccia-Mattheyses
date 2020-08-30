@@ -1,8 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include "dll_structure.h"
-#include "basic_objects.h"
-
+#include "include/main.h"
 /*
 An implementation of doubly-linked lists
 Jan Kowalski 3/2020

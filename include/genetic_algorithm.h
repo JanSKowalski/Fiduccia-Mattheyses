@@ -4,27 +4,34 @@
 
 //This dicates the number of possible partitions the GA plays with
 //Larger values allow for more variance
-#define POPULATION_SIZE 60
+#define POPULATION_SIZE 40
 
 //Prints the cutstates of individual chromosomes on every pass
 #define PRINT_CHROMOSOMES 0
 
+//Prints the average cutstates of chromosomes for the population on every pass
+#define PRINT_AVERAGE_CUTSTATE 0
+
 //This raises the culling threshold towards only the best chromosomes
 //range of 0-arbitrary, 0 resulting in half the population culled (average becomes threshold)
-#define WEIGH_TOWARDS_TOP_CHROMOSOME 4
+#define WEIGH_TOWARDS_TOP_CHROMOSOME 5
 
 //This dictates the number of iterations the GA goes through
 //Higher numbers result in more recombination
-#define NUM_GA_PASSES 40
+//More passes can occur if the algorithm is unable to produce a suitable candidate
+#define NUM_GA_PASSES 2
 
 //The max_number of crossovers that will occur
 // The breeding function allows less than the max to occur
-#define NUM_CROSSOVERS 5
+#define NUM_CROSSOVERS 80
 
 //The frequency that any particular offspring gene will mutate
-//This is written as percent, so the default 5 is a 5% chance of mutation
-// Floats or integers should work, (0,100) - recommended 2-5%
-#define MUTATION_FREQUENCY 3
+//This is written as percent, so the default 0.5 is a 0.5% chance of mutation
+// Floats or integers should work, (0,100) - recommended 0.5-1%
+#define MUTATION_FREQUENCY 0.7
+
+
+//Consider a timeout mechanism
 
 //*************************************************************************
 
@@ -61,3 +68,5 @@ void delete_chromosome(struct chromosome*);
 void free_CHROMOSOME_array(struct chromosome**);
 
 int find_cutstates_and_balance_of_population(struct chromosome** CHROMOSOME_array, struct condensed* information);
+
+void introduce_FM_chromosome(struct chromosome**, struct condensed*);

@@ -1,6 +1,4 @@
-#include "main.h"
-#include "data_input.h"
-#include "fiduccia_mattheyses.h"
+#include "include/main.h"
 
 /*
 An implementation of the Fiduccia-Mattheyses partitioning algorithm
@@ -18,38 +16,32 @@ int main(){
 
 
 	//Define format for ibm benchmark files
-	char are_filename[22] = "Data/Input/ibm00.are";
-	char netD_filename[22] = "Data/Input/ibm00.netD";
+	char are_filename[22] = "data/ibm00.are";
+	char netD_filename[22] = "data/ibm00.netD";
 
-	char results[50] = "Data/Results/ibm00_cutstate_vs_passes.csv";
+	char results[50] = "results.csv";
 
-	int i;
 	char number[3];
-	//Go through each benchmark chip and run FM
-	for(i = 1; i <= 1; i++){
-		snprintf(number, 10, "%d", i);
-		if (i < 10){
-			memcpy(are_filename+15, number, 1);
-			memcpy(netD_filename+15, number, 1);
-			memcpy(results+17, number, 1);
-		}
-		else{
-			memcpy(are_filename+14, number, 2);
-			memcpy(netD_filename+14, number, 2);
-			memcpy(results+16, number, 2);
-		}
-
-		struct stat buffer;
-		FILE *file_check1, *file_check2;
-		//Check if files are available
-		if ((stat(are_filename, &buffer) == 0) && (stat(netD_filename, &buffer) == 0)){
-			import_data_and_run_algorithm(are_filename, netD_filename, results);
-		}
-		else{
-			printf("Either %s or %s is inaccessible by the program\n", are_filename, netD_filename);
-		}
-
+	snprintf(number, 10, "%d", IBM_FILE_NUMBER);
+	if (IBM_FILE_NUMBER < 10){
+		memcpy(are_filename+9, number, 1);
+		memcpy(netD_filename+9, number, 1);
 	}
+	else{
+		memcpy(are_filename+8, number, 2);
+		memcpy(netD_filename+8, number, 2);
+	}
+
+	struct stat buffer;
+	FILE *file_check1, *file_check2;
+	//Check if files are available
+	if ((stat(are_filename, &buffer) == 0) && (stat(netD_filename, &buffer) == 0)){
+		import_data_and_run_algorithm(are_filename, netD_filename, results);
+	}
+	else{
+		printf("Either %s or %s is inaccessible by the program\n", are_filename, netD_filename);
+	}
+
 	return 0;
 }
 
@@ -57,43 +49,90 @@ int main(){
 //Main control function for the program
 //The ibm_testbench_number is 1-18, 0 for files not in the testbench suite.
 void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char* results_filename){
-
-
 	clock_t begin = clock();
 
 	//Obtain information from the two data files (are, netD)
 	struct condensed* information = read_in_data_to_arrays(are_filename, netD_filename);
 
-	//Keep track of which chip we are working on
-	information->results_csv = results_filename;
-
 	//Add useful information about partition sizes
 	information->desired_area = (int) (RATIO * information->total_area);
 	information->ratio = RATIO;
+	information->results_filename = results_filename;
 
-	//Create and initialize the two partition structs
-	initialize_two_partitions(information);
-	//Separate the cells into one of the two partitions
-	populate_partitions(information);
+	//Set the FM_chromosome to NULL so that GA proceeds normally
+	information->FM_chromosome = NULL;
 
-	//Run the algorithm
-	fiduccia_mattheyses_algorithm(information);
+//	FILE *data = fopen("cutstates_with_FM_pass.csv", "a");
 
-	printf("Lowest cutstate: %d\n", information->lowest_cutstate);
+	int i;
+	for(i = 0; i < FM_NUM_PASSES; i++){
+		printf("\nPass number: %d\n", i);
+
+		if (i > 0 ){
+			reset_cells_and_nets(information);
+			delete_partition(information->partition_A);
+			delete_partition(information->partition_B);
+		}
+
+		//Create and initialize the two partition structs
+		initialize_two_partitions(information);
+
+		//Separate the cells into one of the two partitions
+		populate_partitions(information);
+
+		//Important to create FM_chromosome after populate_partitions, as it checks for NULL
+		free(information->FM_chromosome);
+		information->FM_chromosome = malloc(sizeof(struct chromosome));
+		initialize_chromosome(information->FM_chromosome, information);
+
+		//Run the algorithm
+		fiduccia_mattheyses_algorithm(information);
+		printf("Lowest cutstate: %d\n", information->lowest_cutstate);
+//	fprintf(data, "%d, %d\n", i, information->lowest_cutstate);
+
+	}
+
+//fclose(data);
 
 	clock_t end = clock();
 	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-	FILE *data = fopen("pins.csv", "a");
-
-	fprintf(data, "%d, %f\n", information->total_pin_count, time_spent);
-	fclose(data);
-
 	printf("Program execution time: %f\n", time_spent);
-
 	free_all_memory(information);
 }
 
+void reset_cells_and_nets(struct condensed* information){
+	int i;
+	struct cell* temp_cell;
+	struct net* temp_net;
+	struct node* locked_start;
+	struct node* locked_end;
+	struct node* free_end;
+
+	for(i=0;i<information->CELL_array_size;i++){
+		temp_cell = information->CELL_array[i];
+		temp_cell->cell_state = FREE;
+		temp_cell->gain = 0;
+		temp_cell->GAIN_array_node = NULL;
+	}
+
+
+	for(i=0;i<information->NET_array_size;i++){
+		//O(1) transfer of all locked cells to each free_cells list
+		temp_net = information->NET_array[i];
+		locked_start = temp_net->locked_cells->head->next;
+		free_end = temp_net->free_cells->tail->previous;
+		connect_two_nodes(free_end, locked_start);
+		locked_end = temp_net->locked_cells->tail->previous;
+		connect_two_nodes(locked_end, temp_net->free_cells->tail);
+		connect_two_nodes(temp_net->locked_cells->head, temp_net->locked_cells->tail);
+
+		temp_net->num_cells_in_[PARTITION_A] = 0;
+		temp_net->num_cells_in_[PARTITION_B] = 0;
+	}
+
+	information->lowest_cutstate = information->current_cutstate;
+}
 
 
 void free_all_memory(struct condensed* information){
@@ -112,6 +151,7 @@ void free_all_memory(struct condensed* information){
 	free(information->access_);
 	free(information->NET_array);
 	free(information->CELL_array);
+	delete_chromosome(information->FM_chromosome);
 	free(information);
 }
 

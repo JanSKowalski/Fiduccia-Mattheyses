@@ -13,7 +13,7 @@ struct cell{
 	int identifier; //Decided by the order that cells are read in from input .are file
 	int gain; //Initially 0
 	struct dll* nets;
-	struct partition* partition; //The inital partition assigned
+	struct partition* partition; //The reference to the partition
 	int which_partition; //PARTITION_A or PARTITION_B, partition_type enum
 	int area; //Detailed in .are file
 	int cell_state; //FREE or LOCKED, cell_state enum
@@ -24,10 +24,12 @@ struct net{
 	int number_of_cells; //free + locked, not necessarily the size of free_cells
 	int identifier;
 	struct dll* free_cells;
+	struct dll* locked_cells;
 	int* num_cells_in_; // position 0 is partition A, position 1 is partition B
 };
 
 struct partition{
+	int which_partition;
 	//Points to the node of the cell with the highest gain
 	struct node* max_gain_pointer;
 	//Array of dlls
@@ -54,7 +56,7 @@ void print_net(struct net*);
 
 int calculate_max_nets_on_cell(struct cell**, int);
 void initialize_two_partitions(struct condensed*);
-void initialize_partition(struct partition*, int);
+void initialize_partition(struct partition*, int, int);
 void populate_partitions(struct condensed*);
 //void populate_partitions(struct partition*, struct partition*, struct net**, int, struct cell**, int, double, int, int);
 void delete_partition(struct partition*);
