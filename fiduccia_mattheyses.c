@@ -2,22 +2,19 @@
 
 void fiduccia_mattheyses_algorithm(struct condensed* information){
 
-//	struct chromosome* FM_chromosome = malloc(sizeof(struct chromosome));
-//	initialize_chromosome(FM_chromosome, information);
-//	information->FM_chromosome = FM_chromosome;
-
 	calculate_initial_gains_wrapper(information);
 
 	int cells_can_still_be_moved = 1;
 	int timestep = 0;
 
+//FILE *data = fopen(information->results_filename, "a");
 	while( cells_can_still_be_moved ){
 
 		if (PRINT_PARTITION_STATES || RUN_DEMO_WITH_TESTDATA){
 			print_gain_arrays(information->access_[PARTITION_A]);
 			print_gain_arrays(information->access_[PARTITION_B]);
 		}
-
+//fprintf(data, "%d, %d\n", timestep, information->current_cutstate);
 		cells_can_still_be_moved = FM_pass(information);
 
 		if (DOUBLE_CHECK_CUTSTATE_VALUES)
@@ -29,8 +26,8 @@ void fiduccia_mattheyses_algorithm(struct condensed* information){
 		timestep++;
 	}
 
-
-	if(FM_CUTOFF && FM_REPEAT){
+//fclose(data);
+	if(FM_REPEAT){
 		int i;
 		for(i=0; i< information->CELL_array_size; i++){
 			information->FM_chromosome->gene_array[i] = information->CELL_array[i]->which_partition;

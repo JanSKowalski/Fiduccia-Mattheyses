@@ -62,11 +62,11 @@ void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char
 	//Set the FM_chromosome to NULL so that GA proceeds normally
 	information->FM_chromosome = NULL;
 
-//	FILE *data = fopen("cutstates_with_FM_pass.csv", "a");
+	FILE *data = fopen(results_filename, "a");
 
 	int i;
 	for(i = 0; i < FM_NUM_PASSES; i++){
-		printf("\nPass number: %d\n", i);
+//		printf("\nPass number: %d\n", i);
 
 		if (i > 0 ){
 			reset_cells_and_nets(information);
@@ -85,17 +85,19 @@ void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char
 		information->FM_chromosome = malloc(sizeof(struct chromosome));
 		initialize_chromosome(information->FM_chromosome, information);
 
+fprintf(data, "%d, %d\n", i, information->lowest_cutstate);
+
 		//Run the algorithm
 		fiduccia_mattheyses_algorithm(information);
-		printf("Lowest cutstate: %d\n", information->lowest_cutstate);
-//	fprintf(data, "%d, %d\n", i, information->lowest_cutstate);
+//		printf("Lowest cutstate: %d\n", information->lowest_cutstate);
 
 	}
 
-//fclose(data);
 
 	clock_t end = clock();
 	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+
+fclose(data);
 
 	printf("Program execution time: %f\n", time_spent);
 	free_all_memory(information);
