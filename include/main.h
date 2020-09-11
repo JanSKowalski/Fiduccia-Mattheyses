@@ -60,8 +60,8 @@
 //This determines how cells are initially distributed between the two partitions
 //More specific options for the genetic algorithm are under genetic_algorithm.h
 //The default option is RANDOMLY
-//#define PARTITION_CELLS GENETIC_ALGORITHM
-#define PARTITION_CELLS RANDOMLY
+#define PARTITION_CELLS GENETIC_ALGORITHM
+//#define PARTITION_CELLS RANDOMLY
 
 
 //*************************************************************************
@@ -80,13 +80,13 @@
 //Should never be turned on without cutoff also being on.
 //This is because the last pass is always the partition copied over
 //Without cutoff, the last partition is rubbish
-#define FM_REPEAT YES
+#define FM_REPEAT NO
 
 //How many times do you apply FM to the same circuit, using the last
 // output as the starting position
 //Minimum 1, integer values
 //MUST BE 1 if FM_REPEAT is NO (errors otherwise)
-#define FM_NUM_PASSES 1800
+#define FM_NUM_PASSES 1
 
 //*************************************************************************
 
@@ -120,11 +120,13 @@ struct condensed{
 	//The cutstate value during the current pass
 	int current_cutstate;
 
+	double mutation_frequency;
+	int genetic_cutoff;
 
 	struct chromosome* FM_chromosome;
 };
 
-void import_data_and_run_algorithm(char *, char *, char*);
+void import_data_and_run_algorithm(char *, char *, char*, double, int);
 void reset_cells_and_nets(struct condensed*);
 void free_all_memory(struct condensed*);
 

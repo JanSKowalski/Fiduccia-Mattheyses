@@ -10,7 +10,7 @@ int main(){
 
 	//Run the demo if the user option is enabled
 	if (RUN_DEMO_WITH_TESTDATA){
-		import_data_and_run_algorithm(TEST_ARE_FILENAME, TEST_NETD_FILENAME, NULL);
+		import_data_and_run_algorithm(TEST_ARE_FILENAME, TEST_NETD_FILENAME, NULL, 7.0, 9);
 		return 0;
 	}
 
@@ -36,7 +36,17 @@ int main(){
 	FILE *file_check1, *file_check2;
 	//Check if files are available
 	if ((stat(are_filename, &buffer) == 0) && (stat(netD_filename, &buffer) == 0)){
-		import_data_and_run_algorithm(are_filename, netD_filename, results);
+		double i = 0.0;
+		int j,k;
+//		for(j=0;j<5;j++){
+		for(i=0.0;i<1.0;i+=0.05){
+		for(k=0;k<30;k+=2){
+
+			import_data_and_run_algorithm(are_filename, netD_filename, results, i, k);
+			printf("%.2f done, cutoff %d\n", i, k);
+		}
+		}
+//		}
 	}
 	else{
 		printf("Either %s or %s is inaccessible by the program\n", are_filename, netD_filename);
@@ -48,7 +58,7 @@ int main(){
 
 //Main control function for the program
 //The ibm_testbench_number is 1-18, 0 for files not in the testbench suite.
-void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char* results_filename){
+void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char* results_filename, double freq, int cutoff){
 	clock_t begin = clock();
 
 	//Obtain information from the two data files (are, netD)
@@ -61,6 +71,9 @@ void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char
 
 	//Set the FM_chromosome to NULL so that GA proceeds normally
 	information->FM_chromosome = NULL;
+
+information->mutation_frequency = freq;
+information->genetic_cutoff = cutoff;
 
 	FILE *data = fopen(results_filename, "a");
 
@@ -83,13 +96,12 @@ void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char
 		//Important to create FM_chromosome after populate_partitions, as it checks for NULL
 		free(information->FM_chromosome);
 		information->FM_chromosome = malloc(sizeof(struct chromosome));
-		initialize_chromosome(information->FM_chromosome, information);
-
-fprintf(data, "%d, %d\n", i, information->lowest_cutstate);
+		int test = initialize_chromosome(information->FM_chromosome, information);
+fprintf(data, "%.2f, %d, %d\n", information->mutation_frequency, information->genetic_cutoff, information->lowest_cutstate);
 
 		//Run the algorithm
-		fiduccia_mattheyses_algorithm(information);
-//		printf("Lowest cutstate: %d\n", information->lowest_cutstate);
+//		fiduccia_mattheyses_algorithm(information);
+		//printf("Lowest cutstate: %d\n", information->lowest_cutstate);
 
 	}
 
@@ -99,7 +111,7 @@ fprintf(data, "%d, %d\n", i, information->lowest_cutstate);
 
 fclose(data);
 
-	printf("Program execution time: %f\n", time_spent);
+//	printf("Program execution time: %f\n", time_spent);
 	free_all_memory(information);
 }
 

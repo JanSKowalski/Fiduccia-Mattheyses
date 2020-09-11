@@ -4,7 +4,7 @@
 
 //This dicates the number of possible partitions the GA plays with
 //Larger values allow for more variance
-#define POPULATION_SIZE 40
+#define POPULATION_SIZE 100
 
 //Prints the cutstates of individual chromosomes on every pass
 #define PRINT_CHROMOSOMES 0
@@ -14,21 +14,21 @@
 
 //This raises the culling threshold towards only the best chromosomes
 //range of 0-arbitrary, 0 resulting in half the population culled (average becomes threshold)
-#define WEIGH_TOWARDS_TOP_CHROMOSOME 5
+//#define WEIGH_TOWARDS_TOP_CHROMOSOME 20
 
 //This dictates the number of iterations the GA goes through
 //Higher numbers result in more recombination
 //More passes can occur if the algorithm is unable to produce a suitable candidate
-#define NUM_GA_PASSES 2
+#define NUM_GA_PASSES 6
 
 //The max_number of crossovers that will occur
 // The breeding function allows less than the max to occur
-#define NUM_CROSSOVERS 80
+#define NUM_CROSSOVERS 160
 
 //The frequency that any particular offspring gene will mutate
 //This is written as percent, so the default 0.5 is a 0.5% chance of mutation
 // Floats or integers should work, (0,100) - recommended 0.5-1%
-#define MUTATION_FREQUENCY 0.7
+//#define MUTATION_FREQUENCY 0.7
 
 
 //Consider a timeout mechanism
@@ -61,7 +61,7 @@ void populate_chromosome(struct chromosome*, struct condensed*);
 
 void cull_bad_chromosomes(struct chromosome**, struct condensed*);
 void breed_chromosome_offspring(struct chromosome**, struct condensed*);
-void mutate_offspring(struct chromosome*, int);
+void mutate_offspring(struct chromosome*, int, struct condensed*);
 
 void print_CHROMOSOME_array(struct chromosome** CHROMOSOME_array);
 void delete_chromosome(struct chromosome*);

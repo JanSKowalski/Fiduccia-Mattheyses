@@ -23,9 +23,16 @@ void segregate_cells_with_GA(struct condensed* information){
 	if(PRINT_CHROMOSOMES)
 		print_CHROMOSOME_array(CHROMOSOME_array);
 
-
+	int repeat_cutoff = 5;
 	//for NUM_GA_PASSES, cull the bad chromosomes, breed the good chromosomes, calculate the cutstate of the new chromosomes
 	while((pass_number < NUM_GA_PASSES) || (no_balanced_chromosomes && (pass_number >= NUM_GA_PASSES))){
+
+		if(repeat_cutoff == 0){
+			printf("Reset to random\n");
+			segregate_cells_randomly(information);
+			return;
+		}
+
 		//Cull bad chromosomes
 		cull_bad_chromosomes(CHROMOSOME_array, information);
 
@@ -39,6 +46,8 @@ void segregate_cells_with_GA(struct condensed* information){
 			print_CHROMOSOME_array(CHROMOSOME_array);
 
 		pass_number++;
+		if (no_balanced_chromosomes && pass_number > NUM_GA_PASSES)
+			repeat_cutoff--;
 	}
 
 	//Check the CHROMOSOME_array for chromosomes within the balance tolerance.
@@ -184,7 +193,8 @@ void cull_bad_chromosomes(struct chromosome** CHROMOSOME_array, struct condensed
 	}
 	cutstate_average = cutstate_average / POPULATION_SIZE;
 	//It's possible to weigh this closer or farther from the average
-	int threshold = (cutstate_average + WEIGH_TOWARDS_TOP_CHROMOSOME*smallest_cutstate)/(WEIGH_TOWARDS_TOP_CHROMOSOME + 1);
+//	int threshold = (cutstate_average + WEIGH_TOWARDS_TOP_CHROMOSOME*smallest_cutstate)/(WEIGH_TOWARDS_TOP_CHROMOSOME + 1);
+	int threshold = (cutstate_average + (information->genetic_cutoff)*smallest_cutstate)/(information->genetic_cutoff + 1);
 	if (PRINT_AVERAGE_CUTSTATE)
 		printf("Cutstate_average: %d\n", cutstate_average);
 	for(i=0;i<POPULATION_SIZE;i++){
@@ -261,7 +271,7 @@ void breed_chromosome_offspring(struct chromosome** CHROMOSOME_array, struct con
 				temp_chromosome->gene_array[cell_gene_index] = parents[donor_parent]->gene_array[cell_gene_index];
 			}
 
-			mutate_offspring(temp_chromosome, information->CELL_array_size);
+			mutate_offspring(temp_chromosome, information->CELL_array_size, information);
 
 		}
 		//Place the chromosomes back with the others
@@ -272,12 +282,13 @@ void breed_chromosome_offspring(struct chromosome** CHROMOSOME_array, struct con
 
 
 
-void mutate_offspring(struct chromosome* offspring, int num_cells){
+void mutate_offspring(struct chromosome* offspring, int num_cells, struct condensed* information){
 	int i;
 	int* gene_array = offspring->gene_array;
 	for(i=0;i<num_cells;i++){
 		srand(time(NULL)+rand());
-		if(rand() % (int)( 100.0 / (MUTATION_FREQUENCY) ) == 0)
+//		if(rand() % (int)( 100.0 / (MUTATION_FREQUENCY) ) == 0)
+		if(rand() % (int)( 100.0 / (information->mutation_frequency) ) == 0)
 			gene_array[i] = !(gene_array[i]);
 	}
 }
