@@ -1,4 +1,4 @@
-#include "include/main.h"
+#include "../include/main.h"
 
 void fiduccia_mattheyses_algorithm(struct condensed* information){
 

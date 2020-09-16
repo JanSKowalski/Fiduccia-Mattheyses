@@ -1,4 +1,4 @@
-#include "include/main.h"
+#include "../include/main.h"
 
 /*
 An implementation of the Fiduccia-Mattheyses partitioning algorithm
@@ -6,6 +6,89 @@ Jan Kowalski 3/2020-8/2020
 */
 
 
+//Main control function for the program
+//The ibm_testbench_number is 1-18, 0 for files not in the testbench suite.
+void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char* results_filename, double freq, int cutoff){
+	clock_t begin = clock();
+
+	//Obtain information from the two data files (are, netD)
+	struct condensed* information = read_in_data_to_arrays(are_filename, netD_filename);
+
+	//Add useful information about partition sizes
+	information->desired_area = (int) (RATIO * information->total_area);
+	information->ratio = RATIO;
+	information->results_filename = results_filename;
+
+	//Set the FM_chromosome to NULL so that GA proceeds normally
+	information->FM_chromosome = NULL;
+
+information->mutation_frequency = freq;
+information->genetic_cutoff = cutoff;
+
+	FILE *data = fopen(results_filename, "a");
+
+	int i;
+	int lowest_global_cutsize = 99999999;
+	for(i = 0; i < FM_NUM_PASSES; i++){
+//		printf("\nPass number: %d\n", i);
+
+		if (i > 0 ){
+			reset_cells_and_nets(information);
+			delete_partition(information->partition_A);
+			delete_partition(information->partition_B);
+		}
+
+		//Create and initialize the two partition structs
+		initialize_two_partitions(information);
+
+		//Separate the cells into one of the two partitions
+		populate_partitions(information);
+
+		//Reset the partition information with new GA info if FM begins to climb
+		if ((information->FM_chromosome != NULL) && (information->FM_chromosome->cutstate > (lowest_global_cutsize + GA_TRIGGER))){
+			delete_partition(information->partition_A);
+			delete_partition(information->partition_B);
+			initialize_two_partitions(information);
+			segregate_cells_with_GA(information);
+		}
+
+		//Important to create FM_chromosome after populate_partitions, as it checks for NULL to determine if GA or not
+		//FM_chromosome is no longer needed, as its information has been used to population partitions
+		free(information->FM_chromosome);
+		information->FM_chromosome = malloc(sizeof(struct chromosome));
+		initialize_chromosome(information->FM_chromosome, information);
+
+//		if(information->FM_chromosome->cutstate != NULL)
+//			int initial = information->FM_chromosome;
+//		else
+//			initial = information->
+
+fprintf(data, "%d, %d\n", i, information->lowest_cutstate);
+
+
+		//Run the algorithm
+		fiduccia_mattheyses_algorithm(information);
+
+		if (information->lowest_cutstate < lowest_global_cutsize)
+			lowest_global_cutsize = information->lowest_cutstate;
+		//printf("Lowest cutstate: %d\n", information->lowest_cutstate);
+
+
+//fprintf(data, "%d, %d\n", initial, information->current_cutstate);
+
+	}
+
+
+	clock_t end = clock();
+	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+
+fclose(data);
+
+//	printf("Program execution time: %f\n", time_spent);
+	free_all_memory(information);
+}
+
+//File management, options for demo
 int main(){
 
 	//Run the demo if the user option is enabled
@@ -37,15 +120,14 @@ int main(){
 	//Check if files are available
 	if ((stat(are_filename, &buffer) == 0) && (stat(netD_filename, &buffer) == 0)){
 		double i = 0.0;
-		int j,k;
-//		for(j=0;j<5;j++){
-		for(i=0.0;i<1.0;i+=0.05){
-		for(k=0;k<30;k+=2){
+		int j,k = 4;
+//		for(j=0;j<40;j++){
+	//	for(i=0.0;i<1.0;i+=0.05){
+//		for(k=0;k<30;k+=2){
 
 			import_data_and_run_algorithm(are_filename, netD_filename, results, i, k);
-			printf("%.2f done, cutoff %d\n", i, k);
-		}
-		}
+//		}
+//		}
 //		}
 	}
 	else{
@@ -55,65 +137,6 @@ int main(){
 	return 0;
 }
 
-
-//Main control function for the program
-//The ibm_testbench_number is 1-18, 0 for files not in the testbench suite.
-void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char* results_filename, double freq, int cutoff){
-	clock_t begin = clock();
-
-	//Obtain information from the two data files (are, netD)
-	struct condensed* information = read_in_data_to_arrays(are_filename, netD_filename);
-
-	//Add useful information about partition sizes
-	information->desired_area = (int) (RATIO * information->total_area);
-	information->ratio = RATIO;
-	information->results_filename = results_filename;
-
-	//Set the FM_chromosome to NULL so that GA proceeds normally
-	information->FM_chromosome = NULL;
-
-information->mutation_frequency = freq;
-information->genetic_cutoff = cutoff;
-
-	FILE *data = fopen(results_filename, "a");
-
-	int i;
-	for(i = 0; i < FM_NUM_PASSES; i++){
-//		printf("\nPass number: %d\n", i);
-
-		if (i > 0 ){
-			reset_cells_and_nets(information);
-			delete_partition(information->partition_A);
-			delete_partition(information->partition_B);
-		}
-
-		//Create and initialize the two partition structs
-		initialize_two_partitions(information);
-
-		//Separate the cells into one of the two partitions
-		populate_partitions(information);
-
-		//Important to create FM_chromosome after populate_partitions, as it checks for NULL
-		free(information->FM_chromosome);
-		information->FM_chromosome = malloc(sizeof(struct chromosome));
-		int test = initialize_chromosome(information->FM_chromosome, information);
-fprintf(data, "%.2f, %d, %d\n", information->mutation_frequency, information->genetic_cutoff, information->lowest_cutstate);
-
-		//Run the algorithm
-//		fiduccia_mattheyses_algorithm(information);
-		//printf("Lowest cutstate: %d\n", information->lowest_cutstate);
-
-	}
-
-
-	clock_t end = clock();
-	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-
-fclose(data);
-
-//	printf("Program execution time: %f\n", time_spent);
-	free_all_memory(information);
-}
 
 void reset_cells_and_nets(struct condensed* information){
 	int i;

@@ -60,8 +60,8 @@
 //This determines how cells are initially distributed between the two partitions
 //More specific options for the genetic algorithm are under genetic_algorithm.h
 //The default option is RANDOMLY
-#define PARTITION_CELLS GENETIC_ALGORITHM
-//#define PARTITION_CELLS RANDOMLY
+//#define PARTITION_CELLS GENETIC_ALGORITHM
+#define PARTITION_CELLS RANDOMLY
 
 
 //*************************************************************************
@@ -80,13 +80,16 @@
 //Should never be turned on without cutoff also being on.
 //This is because the last pass is always the partition copied over
 //Without cutoff, the last partition is rubbish
-#define FM_REPEAT NO
+#define FM_REPEAT YES
 
 //How many times do you apply FM to the same circuit, using the last
 // output as the starting position
 //Minimum 1, integer values
 //MUST BE 1 if FM_REPEAT is NO (errors otherwise)
-#define FM_NUM_PASSES 1
+#define FM_NUM_PASSES 3
+
+//What losses in the lowest cutstate does FM accept before it switches to a GA?
+#define GA_TRIGGER 30
 
 //*************************************************************************
 

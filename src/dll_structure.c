@@ -1,4 +1,4 @@
-#include "include/main.h"
+#include "../include/main.h"
 /*
 An implementation of doubly-linked lists
 Jan Kowalski 3/2020

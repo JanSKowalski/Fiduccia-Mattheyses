@@ -1,4 +1,4 @@
-#include "include/main.h"
+#include "../include/main.h"
 
 //Main organizing GA function
 void segregate_cells_with_GA(struct condensed* information){

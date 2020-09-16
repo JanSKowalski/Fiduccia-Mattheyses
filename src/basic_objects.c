@@ -1,4 +1,4 @@
-#include "include/main.h"
+#include "../include/main.h"
 
 //This is a collection of objects that can be stored in the doubly-linked list
 

@@ -1,4 +1,4 @@
-#include "include/main.h"
+#include "../include/main.h"
 
 //Assumes no particular order for the CELL_array
 //This seems to work well when the majority of cells are roughly the same, with large outliers
