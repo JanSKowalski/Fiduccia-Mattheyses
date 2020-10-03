@@ -2,9 +2,12 @@
 #Main compile for Fiduccia-Mattheyses
 ##############################################################
 all: src/main.o src/dll_structure.o src/basic_objects.o src/populate_partitions.o src/data_input.o src/fiduccia_mattheyses.o src/genetic_algorithm.o
-	gcc -o src/main.out src/main.o src/dll_structure.o src/basic_objects.o src/populate_partitions.o src/data_input.o src/fiduccia_mattheyses.o src/genetic_algorithm.o
+	gcc -O3 -o src/GAmain.out src/main.o src/dll_structure.o src/basic_objects.o src/populate_partitions.o src/data_input.o src/fiduccia_mattheyses.o src/genetic_algorithm.o
 	rm src/*.o
-	src/main.out
+
+
+run: all
+	src/GAmain.out
 
 main: src/main.c include/main.h
 	gcc -c main.c include/main.h
@@ -31,6 +34,6 @@ genetic_algorithm: src/genetic_algorithm.c genetic_algorithm.h
 #Extra options
 ##############################################################
 #Check heap memory for leaks
-valgrind:
+valgrind: all
 	valgrind --leak-check=full --track-origins=yes src/main.out
 

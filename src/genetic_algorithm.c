@@ -128,7 +128,6 @@ void generate_chromosomes(struct chromosome** CHROMOSOME_array, struct condensed
 //Set the first element of CHROMOSOME_array to FM_chromosome, set the rest to NULL
 void introduce_FM_chromosome(struct chromosome** CHROMOSOME_array, struct condensed* information){
 	int i;
-//	CHROMOSOME_array[0] = information->FM_chromosome;
 	//Copy over the data from FM_chromosome
 	struct chromosome* FM_chromosome_copy = malloc(sizeof(struct chromosome));
 	initialize_chromosome(FM_chromosome_copy, information);
@@ -193,8 +192,7 @@ void cull_bad_chromosomes(struct chromosome** CHROMOSOME_array, struct condensed
 	}
 	cutstate_average = cutstate_average / POPULATION_SIZE;
 	//It's possible to weigh this closer or farther from the average
-//	int threshold = (cutstate_average + WEIGH_TOWARDS_TOP_CHROMOSOME*smallest_cutstate)/(WEIGH_TOWARDS_TOP_CHROMOSOME + 1);
-	int threshold = (cutstate_average + (information->genetic_cutoff)*smallest_cutstate)/(information->genetic_cutoff + 1);
+	int threshold = (cutstate_average + WEIGH_TOWARDS_TOP_CHROMOSOME*smallest_cutstate)/(WEIGH_TOWARDS_TOP_CHROMOSOME + 1);
 	if (PRINT_AVERAGE_CUTSTATE)
 		printf("Cutstate_average: %d\n", cutstate_average);
 	for(i=0;i<POPULATION_SIZE;i++){
@@ -287,8 +285,7 @@ void mutate_offspring(struct chromosome* offspring, int num_cells, struct conden
 	int* gene_array = offspring->gene_array;
 	for(i=0;i<num_cells;i++){
 		srand(time(NULL)+rand());
-//		if(rand() % (int)( 100.0 / (MUTATION_FREQUENCY) ) == 0)
-		if(rand() % (int)( 100.0 / (information->mutation_frequency) ) == 0)
+		if(rand() % (int)( 100.0 / (MUTATION_FREQUENCY) ) == 0)
 			gene_array[i] = !(gene_array[i]);
 	}
 }

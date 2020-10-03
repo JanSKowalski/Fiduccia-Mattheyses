@@ -8,7 +8,7 @@ Jan Kowalski 3/2020-8/2020
 
 //Main control function for the program
 //The ibm_testbench_number is 1-18, 0 for files not in the testbench suite.
-void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char* results_filename, double freq, int cutoff){
+void import_data_and_run_algorithm(char* are_filename, char* netD_filename){
 	clock_t begin = clock();
 
 	//Obtain information from the two data files (are, netD)
@@ -17,20 +17,13 @@ void import_data_and_run_algorithm(char* are_filename, char* netD_filename, char
 	//Add useful information about partition sizes
 	information->desired_area = (int) (RATIO * information->total_area);
 	information->ratio = RATIO;
-	information->results_filename = results_filename;
 
 	//Set the FM_chromosome to NULL so that GA proceeds normally
 	information->FM_chromosome = NULL;
 
-information->mutation_frequency = freq;
-information->genetic_cutoff = cutoff;
-
-	FILE *data = fopen(results_filename, "a");
-
 	int i;
 	int lowest_global_cutsize = 99999999;
 	for(i = 0; i < FM_NUM_PASSES; i++){
-//		printf("\nPass number: %d\n", i);
 
 		if (i > 0 ){
 			reset_cells_and_nets(information);
@@ -54,37 +47,30 @@ information->genetic_cutoff = cutoff;
 
 		//Important to create FM_chromosome after populate_partitions, as it checks for NULL to determine if GA or not
 		//FM_chromosome is no longer needed, as its information has been used to population partitions
-		free(information->FM_chromosome);
+
+		delete_chromosome(information->FM_chromosome);
+
 		information->FM_chromosome = malloc(sizeof(struct chromosome));
 		initialize_chromosome(information->FM_chromosome, information);
-
-//		if(information->FM_chromosome->cutstate != NULL)
-//			int initial = information->FM_chromosome;
-//		else
-//			initial = information->
-
-fprintf(data, "%d, %d\n", i, information->lowest_cutstate);
-
 
 		//Run the algorithm
 		fiduccia_mattheyses_algorithm(information);
 
 		if (information->lowest_cutstate < lowest_global_cutsize)
 			lowest_global_cutsize = information->lowest_cutstate;
-		//printf("Lowest cutstate: %d\n", information->lowest_cutstate);
 
 
-//fprintf(data, "%d, %d\n", initial, information->current_cutstate);
-
+		//Some information needs to be freed between repeats
+		free(information->access_);
 	}
+	printf("Lowest cutstate achieved: %d\n", information->lowest_cutstate);
 
 
 	clock_t end = clock();
 	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+	if(PRINT_EXECUTION_TIME)
+		printf("Program execution time: %f\n", time_spent);
 
-fclose(data);
-
-//	printf("Program execution time: %f\n", time_spent);
 	free_all_memory(information);
 }
 
@@ -93,7 +79,16 @@ int main(){
 
 	//Run the demo if the user option is enabled
 	if (RUN_DEMO_WITH_TESTDATA){
-		import_data_and_run_algorithm(TEST_ARE_FILENAME, TEST_NETD_FILENAME, NULL, 7.0, 9);
+		printf("################################################\n");
+		printf("Running demo with visualized partitions\n");
+		printf("Cells are visible only if they can switch sides\n");
+		printf("################################################\n");
+
+		import_data_and_run_algorithm(TEST_ARE_FILENAME, TEST_NETD_FILENAME);
+
+		printf("######################################################\n");
+		printf("Conclusion of demo. To disable, access include/main.h\n");
+		printf("######################################################\n");
 		return 0;
 	}
 
@@ -101,8 +96,6 @@ int main(){
 	//Define format for ibm benchmark files
 	char are_filename[22] = "data/ibm00.are";
 	char netD_filename[22] = "data/ibm00.netD";
-
-	char results[50] = "results.csv";
 
 	char number[3];
 	snprintf(number, 10, "%d", IBM_FILE_NUMBER);
@@ -119,16 +112,7 @@ int main(){
 	FILE *file_check1, *file_check2;
 	//Check if files are available
 	if ((stat(are_filename, &buffer) == 0) && (stat(netD_filename, &buffer) == 0)){
-		double i = 0.0;
-		int j,k = 4;
-//		for(j=0;j<40;j++){
-	//	for(i=0.0;i<1.0;i+=0.05){
-//		for(k=0;k<30;k+=2){
-
-			import_data_and_run_algorithm(are_filename, netD_filename, results, i, k);
-//		}
-//		}
-//		}
+			import_data_and_run_algorithm(are_filename, netD_filename);
 	}
 	else{
 		printf("Either %s or %s is inaccessible by the program\n", are_filename, netD_filename);
@@ -185,10 +169,9 @@ void free_all_memory(struct condensed* information){
 	for (i = 0; i< information->CELL_array_size; i++){
 		delete_cell(information->CELL_array[i]);
 	}
-	free(information->access_);
+	delete_chromosome(information->FM_chromosome);
 	free(information->NET_array);
 	free(information->CELL_array);
-	delete_chromosome(information->FM_chromosome);
 	free(information);
 }
 
